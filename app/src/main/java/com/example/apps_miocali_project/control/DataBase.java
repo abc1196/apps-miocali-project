@@ -18,10 +18,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
+
 import org.json.*;
+
+import Modelo.PuntoMapa;
+import Modelo.SistemaMio;
 
 
 public class DataBase extends SQLiteOpenHelper{
+    private SistemaMio mundo;
+
     private static final int DATABASE_VERSION = 1;
     private static final String BASE_PUNTOS_MAPA = "basePuntosMapa";
     private static final String TABLA_WIFI = "EstacionesWifi";
@@ -67,6 +73,7 @@ public class DataBase extends SQLiteOpenHelper{
 
     public DataBase(Context context){
         super(context,BASE_PUNTOS_MAPA ,null,DATABASE_VERSION);
+        cargarModeloPuntosRecarga();
     }
 
 
@@ -74,6 +81,9 @@ public class DataBase extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_WIFI);
         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_RECARGA);
         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_PARADA);
+        cargarDatosParadas();
+        cargarDatosRecargas();
+        cargarDatosWifi();
     }
 
 
@@ -113,52 +123,60 @@ public class DataBase extends SQLiteOpenHelper{
         }
     }
 
-    public ArrayList<String> buscarPuntosWifi() {
-        ArrayList<String> puntosWifi = new ArrayList<String>();
+
+    /**
+     *	Busca en la tabla de puntos WiFi todas las estaciones con WiFi.
+     *	<b>@pre</b> hay una tabla en la base de datos SQLite con los puntos wifi.
+     */
+    public void cargarModeloPuntosWifi() {
         SQLiteDatabase db = this.getReadableDatabase();
         String q = "SELECT * FROM " + TABLA_WIFI;
         Cursor busqueda = db.rawQuery(q,null);
 
         if(busqueda.moveToFirst()) {
-            String actual = busqueda.getString(0);
-            for (int i = 1; i < 2; i++) {
-                actual = actual + "_" + busqueda.getString(i);
-            }
-            puntosWifi.add(actual);
+            String nombre = busqueda.getString(0);
+            String latitud = busqueda.getString(1);
+            String longitud = busqueda.getString(2);
+            mundo.getEstacionesWifi().add(new PuntoMapa(nombre, latitud, longitud));
+
             while (busqueda.moveToNext()){
-                actual = busqueda.getString(0);
-                for (int i = 1; i < 2; i++) {
-                    actual = actual + "_" + busqueda.getString(i);
-                }
-                puntosWifi.add(actual);
+                nombre = busqueda.getString(0);
+                latitud = busqueda.getString(1);
+                longitud = busqueda.getString(2);
+                mundo.getEstacionesWifi().add(new PuntoMapa(nombre, latitud, longitud));
             }
         }
-        return puntosWifi;
     }
 
-    public ArrayList<String> buscarPuntosRecarga() {
-        ArrayList<String> puntosRecarga = new ArrayList<String>();
+    /**
+     *	Busca en la tabla de puntos de recarga todos los puntos de recarga de Cali.
+     *	<b>@pre</b> hay una tabla en la base de datos SQLite con los puntos de recarga.
+     */
+    public void cargarModeloPuntosRecarga() {
         SQLiteDatabase db = this.getReadableDatabase();
         String q = "SELECT * FROM " + TABLA_PUNTOS_RECARGA;
         Cursor busqueda = db.rawQuery(q,null);
 
         if(busqueda.moveToFirst()) {
-            String actual = busqueda.getString(0);
-            for (int i = 1; i < 2; i++) {
-                actual = actual + "_" + busqueda.getString(i);
-            }
-            puntosRecarga.add(actual);
+            String nombre = busqueda.getString(0);
+            String latitud = busqueda.getString(1);
+            String longitud = busqueda.getString(2);
+            mundo.getPuntosRecarga().add(new PuntoMapa(nombre, latitud, longitud));
+
             while (busqueda.moveToNext()){
-                actual = busqueda.getString(0);
-                for (int i = 1; i < 2; i++) {
-                    actual = actual + "_" + busqueda.getString(i);
-                }
-                puntosRecarga.add(actual);
+             nombre = busqueda.getString(0);
+             latitud = busqueda.getString(1);
+             longitud = busqueda.getString(2);
+             mundo.getPuntosRecarga().add(new PuntoMapa(nombre, latitud, longitud));
             }
         }
-        return puntosRecarga;
     }
 
+    /**
+     *	Busca en la tabla de paradas todas las paradas de Cali.
+     *	<b>@pre</b> hay una tabla en la base de datos SQLite con las paradas.
+     *	<b>@return</b> Arreglo de Strings con las coordenadas de todas las paradas de Cali en formato "nombre_latitud_longitud"
+     */
     public ArrayList<String> buscarParadas() {
         ArrayList<String> puntosParadas = new ArrayList<String>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -168,13 +186,13 @@ public class DataBase extends SQLiteOpenHelper{
         if(busqueda.moveToFirst()) {
             String actual = busqueda.getString(0);
             for (int i = 1; i < 2; i++) {
-                actual = actual + "_" + busqueda.getString(i);
+                actual = actual + "," + busqueda.getString(i);
             }
             puntosParadas.add(actual);
             while (busqueda.moveToNext()){
                 actual = busqueda.getString(0);
                 for (int i = 1; i < 2; i++) {
-                    actual = actual + "_" + busqueda.getString(i);
+                    actual = actual + "," + busqueda.getString(i);
                 }
                 puntosParadas.add(actual);
             }
@@ -182,6 +200,11 @@ public class DataBase extends SQLiteOpenHelper{
         return puntosParadas;
     }
 
+    /**
+     *	Agrega los datos de las estaciones con wifi a la base de datos SQLite
+     *	<b>@pre</b> hay una base de datos SQLite con la tabla wifi vacia
+     *	<b>@post</b> Se agregan todos los datos a la base SQLite
+     */
     public void cargarDatosWifi() {
         String wifi = "3.367050,-76.529009" + "_3.372651,-76.539931" + "_3.377107,-76.542731" + "_3.388118, -76.544928" + "_3.392862, -76.545754" + "_3.398730, -76.546414" + "_3.403732, -76.546736" + "_3.409768, -76.547470" + "_3.414726, -76.548361" + "_3.415198, -76.549830" + "_3.418871, -76.548328" + "_3.423755, -76.546923" + "_3.431683, -76.543305" + "_3.434863, -76.541009" + "_3.439522, -76.537276" + "_3.442264, -76.532619" + "_3.442677, -76.527292" + "_3.443695, -76.526273" + "_3.427164, -76.505362" + "_3.418522, -76.486820" + "_3.444852, -76.508299" + "_3.444306, -76.502248" + "_3.443920, -76.498847"+ "_3.444846, -76.488224" + "_3.444050, -76.482942" + "_3.447367, -76.529831" + "_3.448727, -76.530174" + "_3.449466, -76.528050" + "_3.452368, -76.531258" + "_3.453161, -76.531644" + "_3.454532, -76.530120" + "_3.456759, -76.530281" + "_3.461235, -76.526966" + "_3.463591, -76.525217" + "_3.474333, -76.519649" + "_3.478142, -76.517279" + "_3.484364, -76.513438" + "_3.489322, -76.508556" + "_3.462833, -76.517471" + "_3.466195, -76.513265" + "_3.473739, -76.506703" + "_3.481682, -76.498078";
         String[] p0 = wifi.split("_");
@@ -191,6 +214,11 @@ public class DataBase extends SQLiteOpenHelper{
         }
     }
 
+    /**
+     *	Agrega los datos del txt dado por metrocali a la base de datos SQLite
+     *	<b>@pre</b> hay una base de datos SQLite con la tabla de paradas vacia
+     *	<b>@post</b> Se agregan todos los datos a la base SQLite
+     */
     public void cargarDatosParadas(){
         File archivo = new File("./data/stops.txt");
         try {
@@ -206,6 +234,12 @@ public class DataBase extends SQLiteOpenHelper{
 
         }
     }
+
+    /**
+     *	Agrega los datos del txt dado por metrocali a la base de datos SQLite
+     *	<b>@pre</b> hay una base de datos SQLite con la tabla de paradas vacia
+     *	<b>@post</b> Se agregan todos los datos a la base SQLite
+     */
     public void cargarDatosRecargas(){
         try{
             JSONObject reader = new JSONObject("./data/recargas.JSON");

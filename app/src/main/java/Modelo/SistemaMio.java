@@ -9,9 +9,18 @@ import java.util.ArrayList;
 public class SistemaMio {
 
     private ArrayList<Ruta> rutas;
+
+    private ArrayList<PuntoMapa> estacionesWifi;
+    private ArrayList<PuntoMapa> puntosRecarga;
+
     private Viaje viaje;
 
+
+
     private SistemaMio(){
+        estacionesWifi = new ArrayList<PuntoMapa>();
+        puntosRecarga = new ArrayList<PuntoMapa>();
+        rutas = new ArrayList<Ruta>();
 
     }
 
@@ -26,6 +35,21 @@ public class SistemaMio {
     public ArrayList<Ruta> getRutas() {
 
         return rutas;
+    }
+    public ArrayList<PuntoMapa> getEstacionesWifi() {
+        return estacionesWifi;
+    }
+
+    public ArrayList<PuntoMapa> getPuntosRecarga() {
+        return puntosRecarga;
+    }
+
+    public void setEstacionesWifi(ArrayList<PuntoMapa> estacionesWifi) {
+        this.estacionesWifi = estacionesWifi;
+    }
+
+    public void setPuntosRecarga(ArrayList<PuntoMapa> puntosRecarga) {
+        this.puntosRecarga = puntosRecarga;
     }
 
     public Viaje getViaje() {
