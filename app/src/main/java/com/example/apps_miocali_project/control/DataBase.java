@@ -3,6 +3,8 @@ package com.example.apps_miocali_project.control;
 /**
  * Created by Juan K on 13/11/2017.
  */
+
+
 import android.content.ContentValues;
 import java.io.*;
 
@@ -13,6 +15,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
 import java.util.ArrayList;
+import java.util.Iterator;
+
+
+import org.json.*;
+
 
 public class DataBase extends SQLiteOpenHelper{
     private static final int DATABASE_VERSION = 1;
@@ -198,8 +205,20 @@ public class DataBase extends SQLiteOpenHelper{
         }catch (IOException e){
 
         }
-
-
     }
+    public void cargarDatosRecargas(){
+        try{
+            JSONObject reader = new JSONObject("./data/recargas.JSON");
+            JSONArray entry  = (JSONArray) reader.getJSONObject("feed").getJSONArray("entry");
+            for (int i = 0; i<entry.length();i++){
+                String nom = entry.getJSONObject(i).getJSONObject("title").getString("$t");
+                String coordenadas = entry.getJSONObject(i).getJSONObject("gsx$coordenadas").getString("$t");
+                String latitud = coordenadas.split(",")[0];
+                String longitud = coordenadas.split(",")[1];
+                agregarRecarga(nom,latitud,longitud);
+            }
+        }catch (Exception e){
 
+        }
+    }
 }
