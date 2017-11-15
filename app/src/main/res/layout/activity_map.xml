@@ -55,35 +55,37 @@
         fab:fab_labelStyle="@style/Etiquetas">
 
         <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/accion_favorito"
+            android:id="@+id/accion_paradas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="?attr/colorAccent"
+            fab:fab_colorNormal="@color/colorDisabled"
             fab:fab_size="mini"
             fab:fab_title="@string/paradas"
             android:src="@drawable/ic_directions_bus_black_24dp"
-            android:tint="@android:color/white" />
+            android:tint="@android:color/white"
+            android:onClick="puntosParadas"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/accion_buscar"
+            android:id="@+id/accion_recargas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="?attr/colorAccent"
+            fab:fab_colorNormal="@color/colorDisabled"
             fab:fab_size="mini"
             fab:fab_title="@string/recargas"
             android:src="@drawable/ic_credit_card_black_24dp"
             android:tint="@android:color/white"
-            />
+            android:onClick="puntosRecarga"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/accion_carrito"
+            android:id="@+id/accion_wifi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="?attr/colorAccent"
+            fab:fab_colorNormal="@color/colorDisabled"
             fab:fab_size="mini"
             fab:fab_title="@string/wifi"
             android:src="@drawable/ic_wifi_black_24dp"
-            android:tint="@android:color/white"/>
+            android:tint="@android:color/white"
+            android:onClick="puntosWifi"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
