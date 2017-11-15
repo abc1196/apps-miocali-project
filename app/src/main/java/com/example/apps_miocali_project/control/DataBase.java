@@ -52,21 +52,21 @@ public class DataBase extends SQLiteOpenHelper{
 
     public static final String SQL_CREATE_TABLA_WIFI = "CREATE TABLE "
             + DataBase.TABLA_WIFI + " ( "
-            + PUNTO_WIFI + " PRIMARY KEY, "
+            + PUNTO_WIFI + " TEXT PRIMARY KEY, "
             + LATITUD_PUNTO_WIFI + " TEXT, "
             + LONGITUD_PUNTO_WIFI + " TEXT ) "
             ;
 
     public static final String SQL_CREATE_TABLA_RECARGA = "CREATE TABLE "
             + DataBase.TABLA_PUNTOS_RECARGA + " ( "
-            + PUNTO_RECARGA + " PRIMARY KEY, "
+            + PUNTO_RECARGA + " TEXT PRIMARY KEY, "
             + LATITUD_PUNTO_RECARGA + " TEXT, "
             + LONGITUD_PUNTO_RECARGA + " TEXT ) "
             ;
 
     public static final String SQL_CREATE_TABLA_PARADA = "CREATE TABLE "
             + DataBase.TABLA_PARADAS + " ( "
-            + PARADA + " PRIMARY KEY, "
+            + PARADA + " TEXT PRIMARY KEY, "
             + LATITUD_PARADA + " TEXT, "
             + LONGITUD_PARADA + " TEXT ) "
             ;

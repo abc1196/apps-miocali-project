@@ -4,4 +4,5 @@
     <string name="recargas">Puntos de recarga</string>
     <string name="wifi">Zonas Wi-Fi</string>
     <string name="paradas">Paradas/Estaciones</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
