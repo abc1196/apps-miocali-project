@@ -3,10 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../../Juan K/Desktop/apps-miocali-project/app/app.iml" filepath="$PROJECT_DIR$/../../../Juan K/Desktop/apps-miocali-project/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apps-miocali-project.iml" filepath="$PROJECT_DIR$/apps-miocali-project.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/apps-miocali-project.iml" filepath="$PROJECT_DIR$/.idea/apps-miocali-project.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../../Juan K/Desktop/apps-miocali-project/apps-miocali-project.iml" filepath="$PROJECT_DIR$/../../../Juan K/Desktop/apps-miocali-project/apps-miocali-project.iml" />
+      <module fileurl="file://C:\Users\Juan K\Desktop\apps-miocali-project\apps-miocali-project.iml" filepath="C:\Users\Juan K\Desktop\apps-miocali-project\apps-miocali-project.iml" />
     </modules>
   </component>
 </project>
