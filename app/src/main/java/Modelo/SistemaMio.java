@@ -17,7 +17,7 @@ public class SistemaMio {
 
 
 
-    private SistemaMio(){
+    public SistemaMio(){
         estacionesWifi = new ArrayList<PuntoMapa>();
         puntosRecarga = new ArrayList<PuntoMapa>();
         rutas = new ArrayList<Ruta>();

@@ -23,6 +23,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     SupportMapFragment mapFragment;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas,recargas,wifi;
+    private DataBase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        db= new DataBase(this);
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
         fabRecargas=(FloatingActionButton) findViewById(R.id.accion_recargas);
@@ -45,9 +46,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
 
         // Add a marker in Sydney, Australia, and move the camera.
+
         LatLng sydney = new LatLng(3.39948, -76.53147);
         googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Home").icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(3.39948 ,-76.53147),16));
+       long lat=db.getMundo().getEstacionesWifi().get(0).getLatitud();
+        long lng=db.getMundo().getEstacionesWifi().get(0).getLongitud();
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat ,lng),16));
         googleMap.addMarker(new MarkerOptions()
                 .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                 .position(new LatLng(3.367050, -76.529009)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
@@ -70,6 +74,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(!paradas){
             fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
             paradas=true;
+
         }else{
             fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
             paradas=false;

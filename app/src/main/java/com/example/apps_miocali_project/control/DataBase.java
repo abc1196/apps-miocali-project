@@ -54,28 +54,36 @@ public class DataBase extends SQLiteOpenHelper{
             + DataBase.TABLA_WIFI + " ( "
             + PUNTO_WIFI + " PRIMARY KEY, "
             + LATITUD_PUNTO_WIFI + " TEXT, "
-            + LONGITUD_PUNTO_WIFI + " TEXT, "
+            + LONGITUD_PUNTO_WIFI + " TEXT ) "
             ;
 
     public static final String SQL_CREATE_TABLA_RECARGA = "CREATE TABLE "
             + DataBase.TABLA_PUNTOS_RECARGA + " ( "
             + PUNTO_RECARGA + " PRIMARY KEY, "
             + LATITUD_PUNTO_RECARGA + " TEXT, "
-            + LONGITUD_PUNTO_RECARGA + " TEXT, "
+            + LONGITUD_PUNTO_RECARGA + " TEXT ) "
             ;
 
     public static final String SQL_CREATE_TABLA_PARADA = "CREATE TABLE "
             + DataBase.TABLA_PARADAS + " ( "
             + PARADA + " PRIMARY KEY, "
             + LATITUD_PARADA + " TEXT, "
-            + LONGITUD_PARADA + " TEXT, "
+            + LONGITUD_PARADA + " TEXT ) "
             ;
 
     public DataBase(Context context){
         super(context,BASE_PUNTOS_MAPA ,null,DATABASE_VERSION);
-        cargarModeloPuntosRecarga();
+        mundo = new SistemaMio();
+
     }
 
+    public SistemaMio getMundo() {
+        return mundo;
+    }
+
+    public void setMundo(SistemaMio mundo) {
+        this.mundo = mundo;
+    }
 
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_WIFI);
@@ -84,6 +92,7 @@ public class DataBase extends SQLiteOpenHelper{
         cargarDatosParadas();
         cargarDatosRecargas();
         cargarDatosWifi();
+        cargarModeloPuntosRecarga();
     }
 
 
@@ -210,7 +219,7 @@ public class DataBase extends SQLiteOpenHelper{
         String[] p0 = wifi.split("_");
         for (int i =0; i<p0.length;i++){
             String[] p1 = p0[i].split(",");
-            agregarWifi("", p1[1].toString(), p1[2].toString());
+            agregarWifi("", p1[0].toString(), p1[1].toString());
         }
     }
 
