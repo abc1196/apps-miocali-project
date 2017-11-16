@@ -6,10 +6,10 @@ package Modelo;
 
 public class PuntoMapa {
     private String nombre;
-    private long latitud;
-    private long longitud;
+    private Double latitud;
+    private Double longitud;
 
-    public PuntoMapa(String nom, long lati, long longi){
+    public PuntoMapa(String nom, Double lati, Double longi){
         nombre = nom;
         latitud = lati;
         longitud = longi;
@@ -17,8 +17,8 @@ public class PuntoMapa {
 
     public PuntoMapa(String nom, String latit, String longit){
 
-        long lati = Long.parseLong(latit);
-        long longi = Long.parseLong(longit);
+        double lati = Double.parseDouble(latit);
+        double longi = Double.parseDouble(longit);
         nombre = nom;
         latitud = lati;
         longitud = longi;
@@ -29,11 +29,11 @@ public class PuntoMapa {
         this.nombre = nombre;
     }
 
-    public void setLatitud(long latitud) {
+    public void setLatitud(Double latitud) {
         this.latitud = latitud;
     }
 
-    public void setLongitud(long longitud) {
+    public void setLongitud(Double longitud) {
         this.longitud = longitud;
     }
 
@@ -42,11 +42,11 @@ public class PuntoMapa {
         return nombre;
     }
 
-    public long getLatitud() {
+    public Double getLatitud() {
         return latitud;
     }
 
-    public long getLongitud() {
+    public Double getLongitud() {
         return longitud;
     }
 }

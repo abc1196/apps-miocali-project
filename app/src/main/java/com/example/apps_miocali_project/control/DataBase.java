@@ -52,8 +52,7 @@ public class DataBase extends SQLiteOpenHelper{
 
     public static final String SQL_CREATE_TABLA_WIFI = "CREATE TABLE "
             + DataBase.TABLA_WIFI + " ( "
-            + PUNTO_WIFI + " TEXT PRIMARY KEY, "
-            + LATITUD_PUNTO_WIFI + " TEXT, "
+            + LATITUD_PUNTO_WIFI + " TEXT PRIMARY KEY, "
             + LONGITUD_PUNTO_WIFI + " TEXT ) "
             ;
 
@@ -74,6 +73,17 @@ public class DataBase extends SQLiteOpenHelper{
     public DataBase(Context context){
         super(context,BASE_PUNTOS_MAPA ,null,DATABASE_VERSION);
         mundo = new SistemaMio();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String q = "SELECT * FROM " + TABLA_WIFI;
+        Cursor busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            cargarDatosParadas();
+
+            cargarDatosWifi();
+        }
+        cargarDatosRecargas();
+        cargarModeloPuntosRecarga();
+        cargarModeloPuntosWifi();
 
     }
 
@@ -89,10 +99,6 @@ public class DataBase extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_WIFI);
         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_RECARGA);
         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_PARADA);
-        cargarDatosParadas();
-        cargarDatosRecargas();
-        cargarDatosWifi();
-        cargarModeloPuntosRecarga();
     }
 
 
@@ -100,11 +106,10 @@ public class DataBase extends SQLiteOpenHelper{
 
     }
 
-    public void agregarWifi(String nom, String latitud, String longitud) {
+    public void agregarWifi(String latitud, String longitud) {
         SQLiteDatabase db = this.getWritableDatabase();
         if (db != null) {
             ContentValues valores = new ContentValues();
-            valores.put(PUNTO_WIFI, nom);
             valores.put(LATITUD_PUNTO_WIFI, latitud);
             valores.put(LONGITUD_PUNTO_WIFI, longitud);
             db.insertOrThrow(TABLA_WIFI, null, valores);
@@ -142,17 +147,15 @@ public class DataBase extends SQLiteOpenHelper{
         String q = "SELECT * FROM " + TABLA_WIFI;
         Cursor busqueda = db.rawQuery(q,null);
 
-        if(busqueda.moveToFirst()) {
-            String nombre = busqueda.getString(0);
-            String latitud = busqueda.getString(1);
-            String longitud = busqueda.getString(2);
-            mundo.getEstacionesWifi().add(new PuntoMapa(nombre, latitud, longitud));
+        if(busqueda.moveToFirst()){
+            String latitud = busqueda.getString(0);
+            String longitud = busqueda.getString(1);
+            mundo.getEstacionesWifi().add(new PuntoMapa("", latitud, longitud));
 
             while (busqueda.moveToNext()){
-                nombre = busqueda.getString(0);
-                latitud = busqueda.getString(1);
-                longitud = busqueda.getString(2);
-                mundo.getEstacionesWifi().add(new PuntoMapa(nombre, latitud, longitud));
+                latitud = busqueda.getString(0);
+                longitud = busqueda.getString(1);
+                mundo.getEstacionesWifi().add(new PuntoMapa("", latitud, longitud));
             }
         }
     }
@@ -219,7 +222,7 @@ public class DataBase extends SQLiteOpenHelper{
         String[] p0 = wifi.split("_");
         for (int i =0; i<p0.length;i++){
             String[] p1 = p0[i].split(",");
-            agregarWifi("", p1[0].toString(), p1[1].toString());
+            agregarWifi(p1[0].toString(), p1[1].toString());
         }
     }
 
@@ -250,6 +253,7 @@ public class DataBase extends SQLiteOpenHelper{
      *	<b>@post</b> Se agregan todos los datos a la base SQLite
      */
     public void cargarDatosRecargas(){
+
         try{
             JSONObject reader = new JSONObject("./data/recargas.JSON");
             JSONArray entry  = (JSONArray) reader.getJSONObject("feed").getJSONArray("entry");

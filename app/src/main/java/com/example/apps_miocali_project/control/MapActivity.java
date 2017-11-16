@@ -28,11 +28,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db= new DataBase(this);
         setContentView(R.layout.activity_map);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        db= new DataBase(this);
+
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
         fabRecargas=(FloatingActionButton) findViewById(R.id.accion_recargas);
@@ -49,24 +50,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         LatLng sydney = new LatLng(3.39948, -76.53147);
         googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Home").icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
-       long lat=db.getMundo().getEstacionesWifi().get(0).getLatitud();
-        long lng=db.getMundo().getEstacionesWifi().get(0).getLongitud();
+        Double lat=db.getMundo().getPuntosRecarga().get(0).getLatitud();
+        Double lng=db.getMundo().getPuntosRecarga().get(0).getLongitud();
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat ,lng),16));
         googleMap.addMarker(new MarkerOptions()
                 .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                .position(new LatLng(3.367050, -76.529009)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
-        googleMap.addMarker(new MarkerOptions()
-                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                .position(new LatLng(3.372651, -76.539931)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
-        googleMap.addMarker(new MarkerOptions()
-                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                .position(new LatLng(3.377107, -76.542731)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
-        googleMap.addMarker(new MarkerOptions()
-                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                .position(new LatLng(3.388118, -76.544928)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
-        googleMap.addMarker(new MarkerOptions()
-                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                .position(new LatLng(3.392862, -76.545754)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
+                .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_1recargas_map)));
+        for (int i = 1; i<db.getMundo().getPuntosRecarga().size();i++) {
+            lat = db.getMundo().getPuntosRecarga().get(i).getLatitud();
+            lng = db.getMundo().getPuntosRecarga().get(i).getLongitud();
+            googleMap.addMarker(new MarkerOptions()
+                    .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                    .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_1recargas_map)));
+        }
     }
 
     public void puntosParadas(View v){
