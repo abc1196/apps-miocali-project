@@ -12,6 +12,7 @@ public class SistemaMio {
 
     private ArrayList<PuntoMapa> estacionesWifi;
     private ArrayList<PuntoMapa> puntosRecarga;
+    private ArrayList<Parada> paradasDelSistema;
 
     private Viaje viaje;
 
@@ -21,7 +22,15 @@ public class SistemaMio {
         estacionesWifi = new ArrayList<PuntoMapa>();
         puntosRecarga = new ArrayList<PuntoMapa>();
         rutas = new ArrayList<Ruta>();
+        paradasDelSistema = new ArrayList<Parada>();
+    }
 
+    public ArrayList<Parada> getParadasDelSistema() {
+        return paradasDelSistema;
+    }
+
+    public void setParadasDelSistema(ArrayList<Parada> paradasDelSistema) {
+        this.paradasDelSistema = paradasDelSistema;
     }
 
     public void setRutas(ArrayList<Ruta> rutas) {

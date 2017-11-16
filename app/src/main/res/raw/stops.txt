@@ -1,5 +1,4 @@
-﻿stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station,platform_code
-1000,Alamos,3.48457417,-76.51331833,1,,
+﻿1000,Alamos,3.48457417,-76.51331833,1,,
 1001,Amanecer,3.42151139,-76.49082875,1,,
 1002,Atanasio Girardot,3.44483167,-76.5082825,1,,
 1003,Belalcazar,3.44415834,-76.52068666,1,,

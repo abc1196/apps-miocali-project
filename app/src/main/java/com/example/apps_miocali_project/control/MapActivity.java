@@ -2,6 +2,8 @@ package com.example.apps_miocali_project.control;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.InputStream;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback{
 
@@ -41,6 +45,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fabWifi=(FloatingActionButton) findViewById(R.id.accion_wifi);
         wifi=false;
 
+
     }
 
     @Override
@@ -50,18 +55,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         LatLng sydney = new LatLng(3.39948, -76.53147);
         googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Home").icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_wifi_map)));
-        Double lat=db.getMundo().getPuntosRecarga().get(0).getLatitud();
-        Double lng=db.getMundo().getPuntosRecarga().get(0).getLongitud();
+        Double lat=db.getMundo().getParadasDelSistema().get(0).getLatitud();
+        Double lng=db.getMundo().getParadasDelSistema().get(0).getLongitud();
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat ,lng),16));
         googleMap.addMarker(new MarkerOptions()
                 .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_1recargas_map)));
-        for (int i = 1; i<db.getMundo().getPuntosRecarga().size();i++) {
-            lat = db.getMundo().getPuntosRecarga().get(i).getLatitud();
-            lng = db.getMundo().getPuntosRecarga().get(i).getLongitud();
+                .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_bus_map)));
+        for (int i = 1; i<db.getMundo().getParadasDelSistema().size();i++) {
+            lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
+            lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
             googleMap.addMarker(new MarkerOptions()
                     .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                    .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_1recargas_map)));
+                    .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_bus_map)));
         }
     }
 
@@ -100,4 +105,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             wifi=false;
         }
     }
+
+
 }
