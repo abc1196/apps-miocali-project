@@ -32,12 +32,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db= new DataBase(this);
         setContentView(R.layout.activity_map);
+        db = new DataBase(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
         fabRecargas=(FloatingActionButton) findViewById(R.id.accion_recargas);
