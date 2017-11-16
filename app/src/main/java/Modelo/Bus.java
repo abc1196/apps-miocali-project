@@ -9,8 +9,8 @@ public class Bus {
     private String idEntidad;
     private String tripId;
     private String routeId;
-    private long latitud;
-    private long longitud;
+    private Double latitud;
+    private Double longitud;
     private String idBus;
     private String placa;
 
@@ -30,11 +30,11 @@ public class Bus {
         return routeId;
     }
 
-    public long getLatitud() {
+    public double getLatitud() {
         return latitud;
     }
 
-    public long getLongitud() {
+    public double getLongitud() {
         return longitud;
     }
 
@@ -58,11 +58,11 @@ public class Bus {
         this.routeId = routeId;
     }
 
-    public void setLatitud(long latitud) {
+    public void setLatitud(double  latitud) {
         this.latitud = latitud;
     }
 
-    public void setLongitud(long longitud) {
+    public void setLongitud(double longitud) {
         this.longitud = longitud;
     }
 
