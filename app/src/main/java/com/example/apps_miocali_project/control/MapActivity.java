@@ -2,9 +2,12 @@ package com.example.apps_miocali_project.control;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -42,7 +45,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-
+        db= new DataBase(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -55,7 +58,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fabWifi=(FloatingActionButton) findViewById(R.id.accion_wifi);
         wifi=false;
         listWifi= new ArrayList<Marker>();
-        db = new DataBase(this);
 
     }
 
@@ -67,6 +69,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void puntosParadas(View v){
         //TODO
         if(!paradas){
+            db.cargarModeloParadas();
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
@@ -96,6 +99,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void puntosRecarga(View v){
         //TODO
         if(!recargas){
+            db.cargarModeloPuntosRecarga();
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getPuntosRecarga().get(i).getLatitud();
                 Double lng = db.getMundo().getPuntosRecarga().get(i).getLongitud();
@@ -123,6 +127,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void puntosWifi(View v){
         //TODO
         if(!wifi){
+            db.cargarModeloPuntosWifi();
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getEstacionesWifi().get(i).getLatitud();
                 Double lng = db.getMundo().getEstacionesWifi().get(i).getLongitud();
@@ -145,6 +150,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             wifi=false;
         }
     }
+
 
 
 }

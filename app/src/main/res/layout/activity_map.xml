@@ -52,8 +52,7 @@
         android:layout_margin="16dp"
         fab:fab_addButtonColorNormal="?attr/colorPrimary"
         fab:fab_addButtonSize="normal"
-        fab:fab_labelStyle="@style/Etiquetas"
-        fab:fab_menuIcon="@drawable/menu_black__24dp" >
+        fab:fab_labelStyle="@style/Etiquetas" >
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/accion_paradas"

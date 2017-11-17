@@ -13,25 +13,18 @@ import com.example.apps_miocali_project.R;
 public class HomeActivity extends AppCompatActivity {
 
     public DataBase db;
-    public ProgressDialog pg;
+
+    private ProgressDialog pg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-
+        pg = ProgressDialog.show(this,"Por favor espera...", "Cargando datos iniciales",false, false);
         db = new DataBase(this);
-        tareaAsyncCargarDatos tareaCargar = new tareaAsyncCargarDatos();
+        tareaAsyncCargarDatos tareaCargar = new tareaAsyncCargarDatos(pg);
         tareaCargar.execute();
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                Intent intent = new Intent(getActivity(),MapActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        }, 2000);
     }
 
     public Activity getActivity(){
@@ -40,10 +33,15 @@ public class HomeActivity extends AppCompatActivity {
 
     public class tareaAsyncCargarDatos extends AsyncTask<Void, Void, Void>{
 
+        private ProgressDialog pg;
+
+        public tareaAsyncCargarDatos(ProgressDialog pg) {
+            this.pg=pg;
+        }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pg = ProgressDialog.show(getApplicationContext(),"Sync", "Cargando datos primera vez",false, false);
         }
 
         @Override
@@ -55,6 +53,9 @@ public class HomeActivity extends AppCompatActivity {
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
             pg.dismiss();
+            Intent intent = new Intent(getActivity(),MapActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 }
