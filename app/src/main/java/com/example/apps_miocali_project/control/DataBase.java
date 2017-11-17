@@ -78,10 +78,12 @@ public class DataBase extends SQLiteOpenHelper{
 
     public DataBase(Context context){
         super(context,BASE_PUNTOS_MAPA ,null,DATABASE_VERSION);
-
         //iniciar el modelo
         mundo = new SistemaMio();
 
+    }
+
+    public void inicarDatos(Context context){
         //Iniciar las tablas de las bases de datos
         SQLiteDatabase db = this.getReadableDatabase();
         String q = "SELECT * FROM " + TABLA_WIFI;
@@ -100,10 +102,7 @@ public class DataBase extends SQLiteOpenHelper{
             cargarDatosParadas(context);
         }
 
-        //cargar los datos de las tablas al modelo.
-        cargarModeloPuntosRecarga();
-        cargarModeloPuntosWifi();
-        cargarModeloParadas();
+
     }
 
     public SistemaMio getMundo() {

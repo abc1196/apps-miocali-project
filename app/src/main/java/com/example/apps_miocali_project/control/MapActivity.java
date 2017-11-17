@@ -28,12 +28,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas,recargas,wifi;
     private DataBase db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        db = new DataBase(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
