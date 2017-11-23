@@ -26,10 +26,17 @@ import org.json.*;
 
 import Modelo.Parada;
 import Modelo.PuntoMapa;
+import Modelo.Ruta;
 import Modelo.SistemaMio;
 
 
 public class DataBase extends SQLiteOpenHelper{
+
+    private static String DB_PATH = "/data/data/com.example.apps_miocali_project/databases/";
+    private static final String DATABASE_NAME = "basePuntosMapa.sqlite";
+    private static final String LOCAL_DATABASE_NAME = "basePuntosMapa";
+
+
     private SistemaMio mundo;
 
     private static final int DATABASE_VERSION = 1;
@@ -37,6 +44,8 @@ public class DataBase extends SQLiteOpenHelper{
     public static final String TABLA_WIFI = "EstacionesWifi";
     public static final String TABLA_PUNTOS_RECARGA  = "puntosRecarga";
     public static final String TABLA_PARADAS = "paradas";
+    public static final String TABLA_RUTAS = "rutas";
+    public static final String TABLA_STOPS = "RelacionRutasyParadas";
 
 
     private static final String PUNTO_RECARGA = "nombrePuntoRecarga";
@@ -51,6 +60,14 @@ public class DataBase extends SQLiteOpenHelper{
     private static final String LATITUD_PARADA = "latitudParada";
     private static final String LONGITUD_PARADA = "longitudParada";
     private static final String ID_PARADA = "idParada";
+
+    private static final String ID_RUTA = "idRuta";
+    private static final String TIPO_RUTA = "tipoRuta";
+    private static final String NOM_RUTA = "nombreRuta";
+    private static final String IDENT_RUTA = "identificadorRuta";
+    private static final String ID_STOP = "idStop";
+
+
 
 
 
@@ -76,14 +93,96 @@ public class DataBase extends SQLiteOpenHelper{
             + LONGITUD_PARADA + " TEXT ) "
             ;
 
+    public static final String SQL_CREATE_TABLA_RUTAS = "CREATE TABLE "
+            + DataBase.TABLA_RUTAS + " ( "
+            + ID_RUTA + " TEXT PRIMARY KEY, "
+            + NOM_RUTA + " TEXT, "
+            + TIPO_RUTA + " TEXT, "
+            + IDENT_RUTA + " TEXT ) "
+            ;
+
+    public static final String SQL_CREATE_TABLA_STOPS = "CREATE TABLE "
+            + DataBase.TABLA_STOPS + " ( "
+            + ID_STOP + " TEXT PRIMARY KEY, "
+            + ID_RUTA + " TEXT, "
+            + ID_PARADA + " TEXT ) "
+            ;
+
     public DataBase(Context context){
         super(context,BASE_PUNTOS_MAPA ,null,DATABASE_VERSION);
         //iniciar el modelo
         mundo = new SistemaMio();
-
+        try {
+            createDataBase(context);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    public void createDataBase(Context context) throws IOException{
+        //check if the database exists
+        boolean databaseExist = checkDataBase();
+
+       // if(databaseExist){
+            // Do Nothing.
+        //}else{
+            SQLiteDatabase db = this.getReadableDatabase();
+            copyDataBase(context);
+        //}// end if else dbExist
+    }
+
+    public boolean checkDataBase(){
+        /**
+        boolean existe = false;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String q = "SELECT * FROM " + TABLA_WIFI;
+        Cursor busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            existe = true;
+        }q = "SELECT * FROM " + TABLA_PUNTOS_RECARGA;
+        busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            existe = true;
+        }
+        q = "SELECT * FROM " + TABLA_PARADAS;
+        busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            existe = true;
+        }
+        q = "SELECT * FROM " + TABLA_RUTAS;
+        busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            existe = true;
+        }
+        q = "SELECT * FROM " + TABLA_STOPS;
+        busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            existe = true;
+        }
+        return  existe;
+         */
+        File databaseFile = new File(DB_PATH + DATABASE_NAME);
+        return databaseFile.exists();
+    }
+
+    private void copyDataBase(Context context) throws IOException{
+        SQLiteDatabase db = this.getWritableDatabase();
+        InputStream myInput = context.getAssets().open(DATABASE_NAME);
+        String outFileName = DB_PATH + LOCAL_DATABASE_NAME;
+        OutputStream myOutput = new FileOutputStream(outFileName);
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = myInput.read(buffer))>0){
+            myOutput.write(buffer, 0, length);
+        }
+        myOutput.flush();
+        myOutput.close();
+        myInput.close();
+    }
+
+
     public void inicarDatos(Context context){
+
         //Iniciar las tablas de las bases de datos
         SQLiteDatabase db = this.getReadableDatabase();
         String q = "SELECT * FROM " + TABLA_WIFI;
@@ -101,7 +200,16 @@ public class DataBase extends SQLiteOpenHelper{
         if(!busqueda.moveToFirst()) {
             cargarDatosParadas(context);
         }
-
+        q = "SELECT * FROM " + TABLA_RUTAS;
+        busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            cargarDatosRutas(context);
+        }
+        q = "SELECT * FROM " + TABLA_STOPS;
+        busqueda = db.rawQuery(q,null);
+        if(!busqueda.moveToFirst()) {
+            cargarStops(context);
+        }
 
     }
 
@@ -114,9 +222,14 @@ public class DataBase extends SQLiteOpenHelper{
     }
 
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(SQL_CREATE_TABLA_WIFI);
-        sqLiteDatabase.execSQL(SQL_CREATE_TABLA_RECARGA);
-        sqLiteDatabase.execSQL(SQL_CREATE_TABLA_PARADA);
+        /**
+         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_WIFI);
+         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_RECARGA);
+         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_PARADA);
+         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_RUTAS);
+         sqLiteDatabase.execSQL(SQL_CREATE_TABLA_STOPS);
+        */
+
     }
 
 
@@ -154,6 +267,27 @@ public class DataBase extends SQLiteOpenHelper{
             db.insertOrThrow(TABLA_PARADAS, null, valores);
         }
     }
+    public void agregarRuta(String id, String nom, String tipo, String ident){
+        SQLiteDatabase db = this.getWritableDatabase();
+        if(db!=null){
+            ContentValues valores = new ContentValues();
+            valores.put(ID_RUTA, id);
+            valores.put(NOM_RUTA, nom);
+            valores.put(TIPO_RUTA, tipo);
+            valores.put(IDENT_RUTA, ident );
+            db.insertOrThrow(TABLA_RUTAS, null, valores);
+        }
+    }
+    public void agregarStop(int i,String idRuta, String idParada){
+        SQLiteDatabase db = this.getWritableDatabase();
+        if(db!=null){
+            ContentValues valores = new ContentValues();
+            valores.put(ID_STOP, ""+i);
+            valores.put(ID_RUTA, idRuta);
+            valores.put(ID_PARADA, idParada);
+            db.insertOrThrow(TABLA_STOPS, null, valores);
+        }
+    }
 
 
     public void cargarModeloPuntosWifi() {
@@ -185,10 +319,10 @@ public class DataBase extends SQLiteOpenHelper{
             mundo.getPuntosRecarga().add(new PuntoMapa(nombre, latitud, longitud));
 
             while (busqueda.moveToNext()){
-             nombre = busqueda.getString(0);
-             latitud = busqueda.getString(1);
-             longitud = busqueda.getString(2);
-             mundo.getPuntosRecarga().add(new PuntoMapa(nombre, latitud, longitud));
+                nombre = busqueda.getString(0);
+                latitud = busqueda.getString(1);
+                longitud = busqueda.getString(2);
+                mundo.getPuntosRecarga().add(new PuntoMapa(nombre, latitud, longitud));
             }
         }
     }
@@ -210,6 +344,28 @@ public class DataBase extends SQLiteOpenHelper{
                 latitud = busqueda.getString(2);
                 longitud = busqueda.getString(3);
                 mundo.getParadasDelSistema().add(new Parada(id, nombre, latitud, longitud));
+            }
+        }
+
+    }
+    public void cargarModeloRutas(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String q = "SELECT * FROM " + TABLA_RUTAS;
+        Cursor busqueda = db.rawQuery(q,null);
+
+        if(busqueda.moveToFirst()) {
+            String id = busqueda.getString(0);
+            String nombre = busqueda.getString(1);
+            String tipo = busqueda.getString(2);
+            String ident = busqueda.getString(3);
+            mundo.getRutas().add(new Ruta(id, tipo, nombre, ident));
+
+            while (busqueda.moveToNext()){
+                id = busqueda.getString(0);
+                nombre = busqueda.getString(1);
+                tipo = busqueda.getString(2);
+                ident = busqueda.getString(3);
+                mundo.getRutas().add(new Ruta(id, tipo, nombre, ident));
             }
         }
 
@@ -268,6 +424,50 @@ public class DataBase extends SQLiteOpenHelper{
                 agregarRecarga(nom,latitud,longitud);
             }
         }catch (Exception e){
+
+        }
+    }
+    public void cargarDatosRutas(Context context){
+        try {
+            BufferedReader br = null;
+            br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.routes)));
+            String linea = br.readLine();
+            while (linea != null) {
+                String lec[] = linea.split(",");
+
+                String tipo = "";
+                if(lec[1].charAt(0) == 'A'){
+                    tipo = "Alimentador";
+                }else if(lec[1].charAt(0) == 'P'){
+                    tipo = "Pre-Troncal";
+                }else if(lec[1].charAt(0) == 'T'){
+                    tipo = "Troncal";
+                }else{
+                    tipo = "Expreso";
+                }
+
+                agregarRuta(lec[0],lec[2], tipo, lec[1]);
+                linea = br.readLine();
+            }
+        }catch (IOException e){
+
+        }
+    }
+    public void cargarStops(Context context){
+        try {
+            BufferedReader br = null;
+            br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.procesado)));
+            String linea = br.readLine();
+            int i = 1;
+            while (linea != null) {
+                String lec[] = linea.split(",");
+                if(lec.length>=2) {
+                    agregarStop(i, lec[0], lec[1]);
+                    i++;
+                }
+                linea = br.readLine();
+            }
+        }catch (IOException e){
 
         }
     }

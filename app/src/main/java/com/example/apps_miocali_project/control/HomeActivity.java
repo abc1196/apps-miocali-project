@@ -26,7 +26,6 @@ public class HomeActivity extends AppCompatActivity {
         tareaAsyncCargarDatos tareaCargar = new tareaAsyncCargarDatos(pg);
         tareaCargar.execute();
     }
-
     public Activity getActivity(){
         return this;
     }
@@ -46,15 +45,19 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            db.inicarDatos(getApplicationContext());
+            try{
+                db.createDataBase(getApplicationContext());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             return null;
         }
 
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
-            pg.dismiss();
             Intent intent = new Intent(getActivity(),MapActivity.class);
             startActivity(intent);
+            pg.dismiss();
             finish();
         }
     }

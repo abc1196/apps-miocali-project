@@ -1,0 +1,96 @@
+﻿3011,A01A,San Bosco - C.A.M - Centro,3,08A300,FFFFFF
+302,A02,Atenas - Zoológico - Estación San Bosco,3,08A300,FFFFFF
+303,A03,Nacional - Santa librada,3,08A300,FFFFFF
+304,A04,Bella Vista - Estación Manzana del saber,3,08A300,FFFFFF
+305,A05,Av. De Las Américas - C.A.M - La Portada,3,08A300,FFFFFF
+306,A06,Aguacatal - Estación San Bosco,3,08A300,FFFFFF
+311,A11,Icesi - P.U.J - Estación Universidades,3,08A300,FFFFFF
+3112,A11B,Universidad Libre - Universidades,3,08A300,FFFFFF
+3121,A12A,Altos De La Luisa - Estación Meléndez - Estación Capri,3,08A300,FFFFFF
+3122,A12B,Las Palmas - Estación Meléndez,3,08A300,FFFFFF
+3123,A12C,Meléndez - Estación Capri,3,08A300,FFFFFF
+3124,A12D,Altos De Santa Elena - Estación Meléndez,3,08A300,FFFFFF
+3131,A13A,Caney - Estación Universidades,3,08A300,FFFFFF
+3132,A13B,Vegas de Comfandi - Caney,3,08A300,FFFFFF
+3133,A13C,Lili - Estación Universidades,3,08A300,FFFFFF
+3141,A14A,U.S.B - Estación Universidades,3,08A300,FFFFFF
+3142,A14B,La Vorágine - Estación Universidades,3,08A300,FFFFFF
+3171,A17A,U.A.O - U. San Martín - Estación Universidades,3,08A300,FFFFFF
+3172,A17B,Hormiguero - Estación Universidades,3,08A300,FFFFFF
+3173,A17C,Comfenalco Lili - Estación  Universidades,3,08A300,FFFFFF
+318,A18,Hacienda El Castillo - Estación Universidades,3,08A300,FFFFFF
+3191,A19A,Comfandi Pance - Estación Universidades,3,08A300,FFFFFF
+3192,A19B,La Buitrera - Estación Buitrera,3,08A300,FFFFFF
+321,A21,Ciudadela Floralia - Terminal Menga,3,08A300,FFFFFF
+322,A22,Brisas de los Áamos - Terminal Menga,3,08A300,FFFFFF
+323,A23,Ciudadela Los Álamos - Terminal Menga,3,08A300,FFFFFF
+324,A24,San Miguel - El Bosque - Estación Vipasa,3,08A300,FFFFFF
+332,A32,Flora Industrial - Estación Chiminangos,3,08A300,FFFFFF
+333,A33,Ciudadela Floralia - Terminal Paso del Comercio,3,08A300,FFFFFF
+334,A34,Alcázares - Terminal Paso del Comercio,3,08A300,FFFFFF
+3351,A35A,Calimio Norte - Terminal Paso del Comercio,3,08A300,FFFFFF
+336,A36,Guayacanes - Estación Chiminangos,3,08A300,FFFFFF
+3371,A37A,Sena - Estación Salomia,3,08A300,FFFFFF
+3372,A37B,Sena - Estación Flora Industrial,3,08A300,FFFFFF
+3411,A41A,Pizamos - Terminal Andrés Sanín,3,08A300,FFFFFF
+3422,A42B,La Casona - Terminal Andrés Sanín,3,08A300,FFFFFF
+3441,A44A,Manuela Beltrán - Terminal Andrés Sanín,3,08A300,FFFFFF
+3442,A44B,Puertas Del sol - Terminal Andrés Sanín,3,08A300,FFFFFF
+3452,A45B,San Marino - Estación Villacolombia,3,08A300,FFFFFF
+347,A47,Pizamos - Terminal Andrés Sanín,3,08A300,FFFFFF
+352,A52,Hospital Isaias Duarte Cancino - Estación Nuevo Latír,3,08A300,FFFFFF
+353,A53,Estación Amanecer - Los Lagos - Terminal Andrés Sanín,3,08A300,FFFFFF
+355,A55,Compartir - Manuela Beltrán - Estación Nuevo Latír,3,08A300,FFFFFF
+357,A57,Villa Luz - Estación Nuevo Latír,3,08A300,FFFFFF
+370,A70,Mortiñal - Estación Tequendama,3,08A300,FFFFFF
+371,A71,Los Chorros - Terminal Cañaveralejo,3,08A300,FFFFFF
+3721,A72A,Jardines De La Aurora - Terminal  Cañaveralejo,3,08A300,FFFFFF
+3722,A72B,El Cortíjo - Terminal Cañaveralejo,3,08A300,FFFFFF
+373,A73,Nápoles - Estación Caldas - Terminal Cañaveralejo,3,08A300,FFFFFF
+375,A75,La Sirena - Terminal Cañaveralejo,3,08A300,FFFFFF
+376,A76,H.U.V - Terminal Cañaveralejo,3,08A300,FFFFFF
+377,A77,Ciudad 2000 - Estación Refugio,3,08A300,FFFFFF
+3781,A78A,Los Chorros - Estación Caldas,3,08A300,FFFFFF
+385,A85,Estación Santa Mónica - Terminal Andrés Sanín,3,08A300,FFFFFF
+421,E21,Terminal Menga - Estación Universidades,3,DAD600,000000
+427,E27,Terminal Menga - Estación Capri,3,DAD600,000000
+4272,E27B,Estación Av Las Américas - Estación Unidad Deportiva,3,DAD600,000000
+431,E31,Terminal Paso del Comercio - Estación Universidades,3,DAD600,000000
+437,E37,Terminal Paso del Comercio - Estación Universidades,3,DAD600,000000
+441,E41,Terminal Andrés Sanín - Estación Universidades,3,DAD600,000000
+452,E52,Estación Nuevo Latír - Terminal Calipso - Terminal,3,DAD600,000000
+2101,P10A,Estación Universidades - Centro,3,2E26CE,FFFFFF
+2102,P10B,Estación Universidades - El Ingenio - Estación San Bosco,3,2E26CE,FFFFFF
+2104,P10D,Estación Universidades - Centro,3,2E26CE,FFFFFF
+2121,P12A,Estación Universidades - Terminal Andrés Sanín - Terminal Paso del Comercio - Terminal Menga,3,2E26CE,FFFFFF
+2141,P14A,Estación Universidades - Terminal Andrés Sanín,3,2E26CE,FFFFFF
+217,P17,P.U.J - Icesi - Estación Unidad Deportiva,3,2E26CE,FFFFFF
+2211,P21A,Universidades - Centro - Av Las Américas,3,2E26CE,FFFFFF
+2212,P21B,Terminal Menga - Estación Universidades,3,2E26CE,FFFFFF
+2241,P24A,Terminal Andrés Sanín - Terminal Paso del Comercio - Terminal Menga,3,2E26CE,FFFFFF
+2242,P24B,C.A.M. - Terminal Andrés Sanín,3,2E26CE,FFFFFF
+2243,P24C,Terminal Menga - Terminal Andrés Sanín - Decepaz,3,2E26CE,FFFFFF
+2273,P27C,Terminal Menga - Estación Universidades,3,2E26CE,FFFFFF
+2274,P27D,Terminal Menga - Estación Capri,3,2E26CE,FFFFFF
+2301,P30A,Estación Flora Indutrial - Terminal Paso del Comercio - Terminal Menga - Centro,3,2E26CE,FFFFFF
+2401,P40A,Terminal Andrés Sanín - Centro,3,2E26CE,FFFFFF
+2402,P40B,Terminal Andrés Sanín - Sena - Centro,3,2E26CE,FFFFFF
+2471,P47A,Terminal Andrés Sanín - Estación Unidad Deportiva,3,2E26CE,FFFFFF
+2472,P47B,Terminal Andrés Sanín - Estación Unidad Deportiva,3,2E26CE,FFFFFF
+2473,P47C,Terminal Andrés Sanín - Estación Capri,3,2E26CE,FFFFFF
+251,P51,Pízamos - Universidades,3,2E26CE,FFFFFF
+2521,P52A,Amanecer - Terminal Calipso - Av. de las Américas,3,2E26CE,FFFFFF
+2524,P52D,Ciudad Cordoba - Centro - Terminal,3,2E26CE,FFFFFF
+271,P71,Caney - Estación Unidad Deportiva,3,2E26CE,FFFFFF
+272,P72,Estación Capri - Centro Empresa,3,2E26CE,FFFFFF
+2801,P80A,Terminal Calipso - Santa Elena - Centro,3,2E26CE,FFFFFF
+282,P82,Terminal Calipso - Terminal Menga,3,2E26CE,FFFFFF
+283,P83,Terminal Calipso - Terminal Paso de Comercio,3,2E26CE,FFFFFF
+2841,P84A,Terminal Calipso - Terminal Andres Sanin,3,2E26CE,FFFFFF
+2842,P84B,Terminal Andrés Sanín - Terminal Calipso,3,2E26CE,FFFFFF
+131,T31,Terminal Paso del Comercio - Estación Universidades,3,D8232A,FFFFFF
+140,T40,Terminal Andrés Sanín - Centro,3,D8232A,FFFFFF
+142,T42,Pizamos - Centro - Terminal,3,D8232A,FFFFFF
+1472,T47B,Terminal Andrés Sanín - Estación Unidad Deportiva,3,D8232A,FFFFFF
+150,T50,Estación Nuevo Latír - Centro,3,D8232A,FFFFFF
+1571,T57A,Estación Nuevo Latír - Estación Unidad Deportiva,3,D8232A,FFFFFF
