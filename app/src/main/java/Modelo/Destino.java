@@ -11,15 +11,26 @@ public class Destino {
     private String nombreDestino;
     private String tiempoLlegada;
     private String tiempoSalida;
+    private String identBus;
 
 
 
-    public Destino(String nombreDestino, String tiempoLlegada, String tiempoSalida, double longitudDestino, double latitudDestino){
+    public Destino(String nombreDestino, String tiempoLlegada, String tiempoSalida, double longitudDestino, double latitudDestino, String identBus){
             this.nombreDestino = nombreDestino;
             this.tiempoLlegada = tiempoLlegada;
             this. tiempoSalida = tiempoSalida;
             this.longitudDestino = longitudDestino;
             this.latitudDestino = latitudDestino;
+            this.identBus = identBus;
+    }
+
+    public void setIdentBus(String identBus) {
+        this.identBus = identBus;
+    }
+
+    public String getIdentBus() {
+
+        return identBus;
     }
 
     public void setTiempoLlegada(String tiempoLlegada) {

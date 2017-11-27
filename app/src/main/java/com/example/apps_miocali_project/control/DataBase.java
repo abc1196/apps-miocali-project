@@ -495,13 +495,22 @@ public class DataBase extends SQLiteOpenHelper{
           int j=0;
           for(i = 0; i < sections.length();i++){
               JSONArray locations = sections.getJSONObject(i).getJSONArray("locations");
+              String type = sections.getJSONObject(i).getString("type");
+              String bus = "";
+              if(type.equals("JOURNEY")){
+                  bus = sections.getJSONObject(i).getString("name");
+              }else{
+                  bus = "Caminata";
+              }
+              Log.d("SwanTagDest", bus);
               for (j = 0;j < locations.length();j++){
-                  String arr = locations.getJSONObject(j).getString("arr");
-                  String dep = locations.getJSONObject(j).getString("dev");
-                  String nom = locations.getJSONObject(j).getString("name");
+                  JSONObject loc = locations.getJSONObject(j);
+                  String arr = loc.getString("arr");
+                  String dep = loc.getString("dep");
+                  String nom = loc.getString("name");
                   double latitud = Double.parseDouble(locations.getJSONObject(j).getString("y").substring(0,0)+"."+locations.getJSONObject(j).getString("y").substring(1,locations.getJSONObject(j).getString("y").length()-1));
                   double longitud = Double.parseDouble(locations.getJSONObject(j).getString("x").substring(0,2)+"."+locations.getJSONObject(j).getString("x").substring(3,locations.getJSONObject(j).getString("y").length()-1));
-                  Destino dest = new Destino(nom, arr, dep, longitud, latitud);
+                  Destino dest = new Destino(nom, arr, dep, longitud, latitud, bus);
                   viaje.getDestinos().add(dest);
               }
 
@@ -511,13 +520,20 @@ public class DataBase extends SQLiteOpenHelper{
       }catch(Exception e){
 
       }
-      Log.d("1", viaje.getLatitudOrigen()+"");
-      Log.d("1", viaje.getLongitudOrigen()+"");
-      Log.d("1", viaje.getLatitudDestino()+"");
-      Log.d("1", viaje.getLongitudDestino()+"");
-      Log.d("1", viaje.getHoraSalida()+"");
-      Log.d("1", viaje.getHoraLlegada()+"");
-      Log.d("1", viaje.getHoraSalida()+"");
+/*
+      for (int k = 0;k<viaje.getDestinos().size();k++){
+          Log.d("SwanTagDest", viaje.getDestinos().get(k).getNombreDestino()+ "");
+          Log.d("SwanTagDest", viaje.getDestinos().get(k).getTiempoLlegada()+ "");
+          Log.d("SwanTagDest", viaje.getDestinos().get(k).getTiempoSalida()+ "");
+          Log.d("SwanTagDest", viaje.getDestinos().get(k).getLatitudDestino()+ "");
+          Log.d("SwanTagDest", viaje.getDestinos().get(k).getLongitudDestino()+ "");
+
+      }
+
+      Log.d("SwanTag", viaje.getHoraSalida()+"");
+      Log.d("SwanTag", viaje.getHoraLlegada()+"");
+      Log.d("SwanTag", viaje.getHoraSalida()+"");
+      */
         return  viaje;
     }
 
