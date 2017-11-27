@@ -1,5 +1,6 @@
 package com.example.apps_miocali_project.control;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
