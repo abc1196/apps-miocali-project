@@ -1,4 +1,8 @@
 <resources>
-    <string name="app_name">apps-miocali-project</string>
+    <string name="app_name">MIO Cali</string>
     <string name="slogan">A tus manos</string>
+    <string name="recargas">Puntos de recarga</string>
+    <string name="wifi">Zonas Wi-Fi</string>
+    <string name="paradas">Paradas/Estaciones</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

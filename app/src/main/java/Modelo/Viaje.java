@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 public class Viaje {
 
-    private long logitudOrigen;
-    private long latitudOrigen;
+    private double logitudOrigen;
+    private double latitudOrigen;
 
     private Ruta rutaOptima;
     private ArrayList<Destino> destinos;
@@ -19,11 +19,11 @@ public class Viaje {
 
     }
 
-    public long getLogitudOrigen() {
+    public double getLogitudOrigen() {
         return logitudOrigen;
     }
 
-    public long getLatitudOrigen() {
+    public double getLatitudOrigen() {
         return latitudOrigen;
     }
 
@@ -39,11 +39,11 @@ public class Viaje {
         return buses;
     }
 
-    public void setLogitudOrigen(long logitudOrigen) {
+    public void setLogitudOrigen(double logitudOrigen) {
         this.logitudOrigen = logitudOrigen;
     }
 
-    public void setLatitudOrigen(long latitudOrigen) {
+    public void setLatitudOrigen(double latitudOrigen) {
         this.latitudOrigen = latitudOrigen;
     }
 

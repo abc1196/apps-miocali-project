@@ -6,19 +6,19 @@ package Modelo;
 
 public class Destino {
 
-    private long longitudDestino;
-    private long latitudDestino;
+    private double longitudDestino;
+    private double latitudDestino;
     private String nombreDestino;
 
     public Destino(){
 
     }
 
-    public long getLongitudDestino() {
+    public double getLongitudDestino() {
         return longitudDestino;
     }
 
-    public long getLatitudDestino() {
+    public double getLatitudDestino() {
         return latitudDestino;
     }
 
@@ -26,11 +26,11 @@ public class Destino {
         return nombreDestino;
     }
 
-    public void setLongitudDestino(long longitudDestino) {
+    public void setLongitudDestino(double longitudDestino) {
         this.longitudDestino = longitudDestino;
     }
 
-    public void setLatitudDestino(long latitudDestino) {
+    public void setLatitudDestino(double latitudDestino) {
         this.latitudDestino = latitudDestino;
     }
 

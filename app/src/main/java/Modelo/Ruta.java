@@ -7,25 +7,46 @@ import java.util.ArrayList;
  */
 
 public class Ruta {
-    public static final int TRONCAL = 1;
-    public static final int PRE_TRONCAL = 2;
-    public static final int EXPRESO  = 3;
-    public static final int ALIMENTADOR = 4;
+
 
     private String idRuta;
-    private int tipo;
+    private String  tipo;
+    private String nombre;
+    private String identificador;
 
     private ArrayList<Parada> paradas;
 
-    public Ruta(){
 
+
+    public Ruta(String id, String tipo, String nom, String ident){
+        idRuta = id;
+        this.tipo = tipo;
+        nombre = nom;
+        identificador= ident;
+
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setIdentificador(String identificador) {
+        this.identificador = identificador;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getIdentificador() {
+        return identificador;
     }
 
     public String getIdRuta() {
         return idRuta;
     }
 
-    public int getTipo() {
+    public String getTipo() {
         return tipo;
     }
 
@@ -37,7 +58,7 @@ public class Ruta {
         this.idRuta = idRuta;
     }
 
-    public void setTipo(int tipo) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 

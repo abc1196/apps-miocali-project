@@ -9,10 +9,28 @@ import java.util.ArrayList;
 public class SistemaMio {
 
     private ArrayList<Ruta> rutas;
+
+    private ArrayList<PuntoMapa> estacionesWifi;
+    private ArrayList<PuntoMapa> puntosRecarga;
+    private ArrayList<Parada> paradasDelSistema;
+
     private Viaje viaje;
 
-    private SistemaMio(){
 
+
+    public SistemaMio(){
+        estacionesWifi = new ArrayList<PuntoMapa>();
+        puntosRecarga = new ArrayList<PuntoMapa>();
+        rutas = new ArrayList<Ruta>();
+        paradasDelSistema = new ArrayList<Parada>();
+    }
+
+    public ArrayList<Parada> getParadasDelSistema() {
+        return paradasDelSistema;
+    }
+
+    public void setParadasDelSistema(ArrayList<Parada> paradasDelSistema) {
+        this.paradasDelSistema = paradasDelSistema;
     }
 
     public void setRutas(ArrayList<Ruta> rutas) {
@@ -26,6 +44,21 @@ public class SistemaMio {
     public ArrayList<Ruta> getRutas() {
 
         return rutas;
+    }
+    public ArrayList<PuntoMapa> getEstacionesWifi() {
+        return estacionesWifi;
+    }
+
+    public ArrayList<PuntoMapa> getPuntosRecarga() {
+        return puntosRecarga;
+    }
+
+    public void setEstacionesWifi(ArrayList<PuntoMapa> estacionesWifi) {
+        this.estacionesWifi = estacionesWifi;
+    }
+
+    public void setPuntosRecarga(ArrayList<PuntoMapa> puntosRecarga) {
+        this.puntosRecarga = puntosRecarga;
     }
 
     public Viaje getViaje() {

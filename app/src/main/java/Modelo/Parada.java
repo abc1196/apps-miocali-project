@@ -8,12 +8,17 @@ public class Parada {
 
     private String id;
     private String nombre;
-    private long longitud;
-    private long latitud;
-    private boolean estacionConWifi;
+    private Double longitud;
+    private Double latitud;
 
-    public Parada(){
 
+    public Parada(String id, String nom, String latit, String longit){
+        double lati = Double.parseDouble(latit);
+        double longi = Double.parseDouble(longit);
+        nombre = nom;
+        latitud = lati;
+        longitud = longi;
+        this.id = id;
     }
 
     public String getId() {
@@ -24,16 +29,12 @@ public class Parada {
         return nombre;
     }
 
-    public long getLongitud() {
+    public Double getLongitud() {
         return longitud;
     }
 
-    public long getLatitud() {
+    public Double getLatitud() {
         return latitud;
-    }
-
-    public boolean isEstacionConWifi() {
-        return estacionConWifi;
     }
 
     public void setId(String id) {
@@ -44,15 +45,12 @@ public class Parada {
         this.nombre = nombre;
     }
 
-    public void setLongitud(long longitud) {
+    public void setLongitud(Double longitud) {
         this.longitud = longitud;
     }
 
-    public void setLatitud(long latitud) {
+    public void setLatitud(Double latitud) {
         this.latitud = latitud;
     }
 
-    public void setEstacionConWifi(boolean estacionConWifi) {
-        this.estacionConWifi = estacionConWifi;
-    }
 }
