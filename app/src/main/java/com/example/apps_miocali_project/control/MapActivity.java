@@ -70,6 +70,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //TODO
         if(!paradas){
             db.cargarModeloParadas();
+            db.planearRuta("-76.537264", "3.3719636", "-76.532887", "3.442263");
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
