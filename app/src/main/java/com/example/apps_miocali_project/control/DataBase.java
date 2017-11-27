@@ -520,20 +520,7 @@ public class DataBase extends SQLiteOpenHelper{
       }catch(Exception e){
 
       }
-/*
-      for (int k = 0;k<viaje.getDestinos().size();k++){
-          Log.d("SwanTagDest", viaje.getDestinos().get(k).getNombreDestino()+ "");
-          Log.d("SwanTagDest", viaje.getDestinos().get(k).getTiempoLlegada()+ "");
-          Log.d("SwanTagDest", viaje.getDestinos().get(k).getTiempoSalida()+ "");
-          Log.d("SwanTagDest", viaje.getDestinos().get(k).getLatitudDestino()+ "");
-          Log.d("SwanTagDest", viaje.getDestinos().get(k).getLongitudDestino()+ "");
 
-      }
-
-      Log.d("SwanTag", viaje.getHoraSalida()+"");
-      Log.d("SwanTag", viaje.getHoraLlegada()+"");
-      Log.d("SwanTag", viaje.getHoraSalida()+"");
-      */
         return  viaje;
     }
 

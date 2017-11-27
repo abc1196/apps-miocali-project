@@ -1,11 +1,20 @@
 package com.example.apps_miocali_project.control;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
+   /* USAR PLANEAR VIAJE
+   pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje.",false, false);
+   tareaAsyncPlanearViaje planearViaje = new tareaAsyncPlanearViaje(pg, latitudInicio, longitudInicio, latitudFinal , longitudFinal );
+   planearViaje.execute();
+   */
 
+
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,6 +44,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     boolean paradas,recargas,wifi;
     private DataBase db;
     private GoogleMap map;
+
+    private ProgressDialog pg;
 
     private ArrayList<Marker> listParadas;
     private ArrayList<Marker> listRecargas;
@@ -70,7 +81,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //TODO
         if(!paradas){
             db.cargarModeloParadas();
-            db.planearRuta("-76.537264", "3.3719636", "-76.532887", "3.442263");
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
@@ -152,6 +162,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
 
+        private ProgressDialog pg;
+        private String x1,x2,y1,y2;
+
+        public tareaAsyncPlanearViaje(ProgressDialog pg,String y1, String x1, String y2, String x2) {
+            this.pg=pg;
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try{
+                db.planearRuta(x1,y1,x2,y2);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected  void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            pg.dismiss();
+        }
+    }
 
 }
