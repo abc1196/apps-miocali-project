@@ -54,6 +54,18 @@
         fab:fab_addButtonSize="normal"
         fab:fab_labelStyle="@style/Etiquetas" >
 
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/accion_filtro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_size="mini"
+            fab:fab_title="@string/filtro"
+            android:src="@drawable/ic_filter_list_black_24dp"
+            android:tint="@android:color/white"
+            android:onClick="activarMenuFiltro"/>
+
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/accion_paradas"
             android:layout_width="wrap_content"
@@ -88,5 +100,20 @@
             android:onClick="puntosWifi"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabUbicacion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:src="@drawable/ic_gps_fixed_black_24dp"
+        android:tint="@android:color/white"
+        android:onClick="darUbicacionActual"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"></LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

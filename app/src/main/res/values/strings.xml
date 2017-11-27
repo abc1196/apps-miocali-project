@@ -5,4 +5,8 @@
     <string name="wifi">Zonas Wi-Fi</string>
     <string name="paradas">Paradas/Estaciones</string>
     <string name="title_activity_maps">Map</string>
+    <string name="filtro">Ajustes de filtro</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
