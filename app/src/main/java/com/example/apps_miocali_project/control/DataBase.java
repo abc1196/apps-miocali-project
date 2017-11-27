@@ -319,9 +319,13 @@ public class DataBase extends SQLiteOpenHelper{
                 String id_ruta_busqueda = busqueda.getString(0);
                 String query2 = "SELECT "+ this.IDENT_RUTA+" FROM " + this.TABLA_RUTAS +" WHERE "+this.ID_RUTA+" LIKE "+"'"+id_ruta_busqueda+"'";
                 Cursor busqueda2 = db.rawQuery(query2,null);
-                if(busqueda.moveToFirst()){
+                if(busqueda2.moveToFirst()){
+
                     String rutaActual=busqueda2.getString(0);
-                    rutas.add(rutaActual);
+                    if(!rutas.contains(rutaActual)) {
+
+                        rutas.add(rutaActual);
+                    }
                 }
             }
         }

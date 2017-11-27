@@ -1,23 +1,14 @@
 package com.example.apps_miocali_project.control;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
-
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 
 import com.example.apps_miocali_project.R;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -25,7 +16,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback{
@@ -100,6 +90,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //TODO
         if(!recargas){
             db.cargarModeloPuntosRecarga();
+            db.cargarRutasParada(502301+"");
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getPuntosRecarga().get(i).getLatitud();
                 Double lng = db.getMundo().getPuntosRecarga().get(i).getLongitud();
