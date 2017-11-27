@@ -1,0 +1,71 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="layout.FilterSettingsFragment">
+
+    <TextView
+        android:id="@+id/txtDistancia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_gravity="top"
+        android:textSize="24dp"
+        android:textStyle="bold"
+        android:text="100 m"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- seekbar option 5 -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        >
+
+        <RelativeLayout
+            android:id="@+id/contRangeSeekbar5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar
+                android:id="@+id/rangeSeekbar4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:min_value="100"
+                app:max_value="1000"
+                app:bar_color="@color/colorPrimary"
+                app:bar_highlight_color="@color/colorPrimaryDark"
+                app:left_thumb_color="@color/colorPrimary"
+                app:left_thumb_color_pressed="@color/colorPrimaryDark"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/textMin5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100"
+            android:layout_below="@id/contRangeSeekbar5"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            android:textSize="16dp"
+            android:textColor="#000"/>
+
+        <TextView
+            android:id="@+id/textMax5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1000"
+            android:layout_below="@id/contRangeSeekbar5"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:textSize="16dp"
+            android:textColor="#000"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
