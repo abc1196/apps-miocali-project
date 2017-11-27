@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,8 @@ import org.w3c.dom.Text;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback{
 
@@ -49,25 +52,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private DataBase db;
     private GoogleMap map;
     private float distanciaFiltro;
-
-    private ArrayList<Marker> listParadas;
+    private HashMap<Marker, String> mapParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
-
+    private RelativeLayout paradasLayout;
+    private String idParada;
+    private TextView txtRutaNombre;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        idParada="";
+        txtRutaNombre=(TextView)findViewById(R.id.txtRutaNombre);
         distanciaFiltro=500;
         db= new DataBase(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
         fabUbicacion=(android.support.design.widget.FloatingActionButton)findViewById(R.id.fabUbicacion);
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
-        listParadas= new ArrayList<Marker>();
+        mapParadas= new HashMap<Marker, String>();
         fabRecargas=(FloatingActionButton) findViewById(R.id.accion_recargas);
         recargas=false;
         listRecargas= new ArrayList<Marker>();
@@ -80,31 +87,59 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map=googleMap;
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if(mapParadas.containsKey(marker)){
+                    Log.d("ALEJOTAG",marker.getTitle());
+                    idParada=mapParadas.get(marker);
+                    txtRutaNombre.setText(marker.getTitle());
+                    paradasLayout.setVisibility(View.VISIBLE);
+                }
+                return false;
+            }
+        });
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(paradasLayout.getVisibility() == View.VISIBLE) {
+                    paradasLayout.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     public void puntosParadas(View v){
         //TODO
         if(!paradas){
             db.cargarModeloParadas();
-            for (int i = 0; i<10;i++) {
+            for (int i = 100; i<120;i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
+                String id=db.getMundo().getParadasDelSistema().get(i).getId();
+                String nombre=db.getMundo().getParadasDelSistema().get(i).getNombre();
                 MarkerOptions marker_onclick =  new MarkerOptions()
                         .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                        .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
+                        .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas)).title(nombre);
                 Marker marker=map.addMarker(marker_onclick);
-                listParadas.add(marker);
+                mapParadas.put(marker,id);
+               // listParadas.add(marker);
             }
             fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
             paradas=true;
 
         }else{
-            for (int i = 0; i<listParadas.size();i++) {
-                Marker marker= listParadas.get(i);
-                marker.remove();
 
+            for(Map.Entry<Marker,String> entry: mapParadas.entrySet()){
+                Marker marker= entry.getKey();
+                marker.remove();
             }
-            listParadas.clear();
+            mapParadas.clear();
+//            for (int i = 0; i<listParadas.size();i++) {
+//                Marker marker= listParadas.get(i);
+//                marker.remove();
+//            }
+//            listParadas.clear();
             fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
             paradas=false;
 
@@ -206,6 +241,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public void verRutasParada(View v){
+
     }
 
 
