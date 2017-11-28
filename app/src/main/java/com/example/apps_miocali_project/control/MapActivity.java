@@ -6,6 +6,7 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -18,6 +19,7 @@ import android.location.Location;
 
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -49,7 +51,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
-
+    private ProgressDialog pg;
     SupportMapFragment mapFragment;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
@@ -79,6 +81,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final double DEFAULT_LONGITUD = -76.556218;
 
     private double distanciaFiltro;
+    private ConexionHTTPTReal darBusesTiempoReal;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -419,4 +422,72 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+    public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
+
+        private ProgressDialog pg;
+        private String x1,x2,y1,y2;
+
+        public tareaAsyncPlanearViaje(ProgressDialog pg,String y1, String x1, String y2, String x2) {
+            this.pg=pg;
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try{
+                db.planearRuta(x1,y1,x2,y2);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected  void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            pg.dismiss();
+        }
+    }
+    public class tareaAsyncBuscarRutaParada extends AsyncTask<Void, Void, Void> {
+
+
+
+        public tareaAsyncBuscarRutaParada(String idParada, String idRoute) {
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try{
+                darBusesTiempoReal.start();
+                while (darBusesTiempoReal.isMantener()){
+                    if(darBusesTiempoReal.isConsultaLista()){
+
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected  void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            pg.dismiss();
+        }
+    }
 }
+
