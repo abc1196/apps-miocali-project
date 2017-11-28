@@ -13,9 +13,39 @@ public class Bus {
     private Double longitud;
     private String idBus;
     private String placa;
+    private String identRuta;
+    private String stopId;
 
-    public Bus(){
 
+    public Bus(double latitud, double longitud, String routeId, String stopId){
+        this.latitud = latitud;
+        this.longitud = longitud;
+        this.routeId = routeId;
+        this.stopId = stopId;
+    }
+
+    public String getStopId() {
+        return stopId;
+    }
+
+    public void setStopId(String stopId) {
+        this.stopId = stopId;
+    }
+
+    public String getIdentRuta() {
+        return identRuta;
+    }
+
+    public void setLatitud(Double latitud) {
+        this.latitud = latitud;
+    }
+
+    public void setLongitud(Double longitud) {
+        this.longitud = longitud;
+    }
+
+    public void setIdentRuta(String identRuta) {
+        this.identRuta = identRuta;
     }
 
     public String getIdEntidad() {

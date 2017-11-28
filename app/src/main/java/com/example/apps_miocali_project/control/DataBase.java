@@ -25,10 +25,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import Modelo.Destino;
 import Modelo.Parada;
 import Modelo.PuntoMapa;
 import Modelo.Ruta;
 import Modelo.SistemaMio;
+import Modelo.Viaje;
 
 
 public class DataBase extends SQLiteOpenHelper{
@@ -36,6 +38,7 @@ public class DataBase extends SQLiteOpenHelper{
     private static String DB_PATH = "/data/data/com.example.apps_miocali_project/databases/";
     private static final String DATABASE_NAME = "basePuntosMapa.sqlite";
     private static final String LOCAL_DATABASE_NAME = "basePuntosMapa";
+
 
 
     private SistemaMio mundo;
@@ -410,6 +413,8 @@ public class DataBase extends SQLiteOpenHelper{
             String linea = br.readLine();
             while (linea != null) {
                 String lec[] = linea.split(",");
+                double latitud = Double.parseDouble(lec[3]);
+                double longitud = Double.parseDouble(lec[4]);
                 agregarParada(lec[0],lec[1], lec[2], lec[3]);
                 linea = br.readLine();
             }
@@ -491,8 +496,56 @@ public class DataBase extends SQLiteOpenHelper{
                 linea = br.readLine();
             }
         }catch (IOException e){
-
         }
+    }
+
+    public Viaje planearRuta(String x1, String y1, String x2, String y2){
+      ConexionHTTPPRuta planeacionRuta = new ConexionHTTPPRuta(x1,y1,x2,y2);
+      planeacionRuta.start();
+      Viaje viaje = new Viaje();
+      while (planeacionRuta.isAlive()){
+
+      }
+      try {
+          String body = planeacionRuta.getRespuesta();
+          JSONObject object = new JSONObject(body.toString());
+          JSONObject route = object.getJSONObject("route");
+          JSONArray sections = route.getJSONArray("sections");
+
+          viaje.setLatitudOrigen(Double.parseDouble(x1));
+          viaje.setLongitudOrigen(Double.parseDouble(y1));
+          viaje.setLatitudDestino(Double.parseDouble(x2));
+          viaje.setLongitudDestino(Double.parseDouble(y2));
+          int i=0;
+          int j=0;
+          for(i = 0; i < sections.length();i++){
+              JSONArray locations = sections.getJSONObject(i).getJSONArray("locations");
+              String type = sections.getJSONObject(i).getString("type");
+              String bus = "";
+              if(type.equals("JOURNEY")){
+                  bus = sections.getJSONObject(i).getString("name");
+              }else{
+                  bus = "Caminata";
+              }
+              for (j = 0;j < locations.length();j++){
+                  JSONObject loc = locations.getJSONObject(j);
+                  String arr = loc.getString("arr");
+                  String dep = loc.getString("dep");
+                  String nom = loc.getString("name");
+                  double latitud = Double.parseDouble(locations.getJSONObject(j).getString("y").substring(0,1)+"."+locations.getJSONObject(j).getString("y").substring(1,locations.getJSONObject(j).getString("y").length()));
+                  double longitud = Double.parseDouble(locations.getJSONObject(j).getString("x").substring(0,3)+"."+locations.getJSONObject(j).getString("x").substring(3,locations.getJSONObject(j).getString("y").length()));
+                  Destino dest = new Destino(nom, arr, dep, longitud, latitud, bus);
+                  viaje.getDestinos().add(dest);
+              }
+
+          }
+          viaje.setHoraSalida(sections.getJSONObject(0).getJSONArray("locations").getJSONObject(0).getString("dep"));
+          viaje.setHoraLlegada(sections.getJSONObject(i-1).getJSONArray("locations").getJSONObject(j-1).getString("arr"));
+      }catch(Exception e){
+
+      }
+        mundo.setViaje(viaje);
+        return  viaje;
     }
 
 }

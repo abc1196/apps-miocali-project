@@ -31,7 +31,6 @@ private HttpURLConnection urlConnection;
         this.y1 = y1;
         this.y2 = y2;
         ruta ="http://tuyo.herokuapp.com/request-route?x1=-76.537264" + this.x1 + "&y1=" + this.y1+ "&x2=" + this.x2 + "&y2=" + this.y2 + "&mode=lessBuses";
-        start();
     }
 
     public String getRespuesta() {
@@ -58,7 +57,7 @@ private HttpURLConnection urlConnection;
             urlConnection = (HttpURLConnection) url.openConnection();
             body = readStream(urlConnection.getInputStream());
             urlConnection.disconnect();
-            
+
         } catch (MalformedURLException e) {
             body = e.toString(); //Error URL incorrecta
             e.printStackTrace();
