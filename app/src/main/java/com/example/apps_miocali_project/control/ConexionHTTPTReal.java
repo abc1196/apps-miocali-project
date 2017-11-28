@@ -16,6 +16,13 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.ArrayList;
+
+import com.google.transit.realtime.GtfsRealtime.FeedEntity;
+import com.google.transit.realtime.GtfsRealtime.FeedMessage;
+
+import Modelo.Bus;
+
 
 /**
  * Created by Jorge Castaño on 19/11/2017.
@@ -25,11 +32,18 @@ public class ConexionHTTPTReal extends Thread{
 
     private String respuesta;
     private boolean mantener;
+    private boolean consultaLista;
+    private ArrayList<Bus> buses;
 private HttpURLConnection urlConnection;
 
     public ConexionHTTPTReal() {
-        start();
+        consultaLista = false;
         mantener = true;
+        buses = new ArrayList<Bus>();
+    }
+
+    public ArrayList<Bus> getBuses() {
+        return buses;
     }
 
     public String getRespuesta() {
@@ -38,25 +52,26 @@ private HttpURLConnection urlConnection;
 
     public void run() {
         super.run();
-
         try {
-            while (true) {
-                respuesta = clienteHttp("http://190.216.202.35:90/gtfs/realtime/");
-                sleep(30000);
+            while(mantener == true) {
+                consultaLista = false;
+                buses = clienteHttp("http://190.216.202.35:90/gtfs/realtime/");
+                sleep(32000);
             }
-
-
         }catch (IOException e) {
           e.printStackTrace();
-        }
-        catch (InterruptedException e){
-            e.getStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-    public String clienteHttp(String dirweb) throws IOException {
+    public void setMantener(boolean mantener) {
+        this.mantener = mantener;
+    }
 
-        String body = " ";
+    public ArrayList<Bus> clienteHttp(String dirweb) throws IOException {
+
+        ArrayList<Bus>  buses = new ArrayList<Bus>();
 
         try {
 
@@ -72,25 +87,45 @@ private HttpURLConnection urlConnection;
                 });
             }
 
-            url = new URL(dirweb+"vehiclePositions.pb.txt");
-            urlConnection = (HttpURLConnection) url.openConnection();
-            body = readStream(urlConnection.getInputStream());
+            url = new URL("http://190.216.202.35:90/gtfs/realtime/vehiclePositions.pb");
+            FeedMessage feed = FeedMessage.parseFrom(url.openStream());
+            for (FeedEntity entity : feed.getEntityList()) {
+                if (entity.hasVehicle()) {
+                    double latitud = (double) entity.getVehicle().getPosition().getLatitude();
+                    double longitud = (double) entity.getVehicle().getPosition().getLongitude();
+                    String routeId = entity.getVehicle().getTrip().getRouteId();
+                    String stopId = entity.getVehicle().getStopId().toString();
 
-
+                    Bus n = new Bus(latitud, longitud, routeId, stopId);
+                    buses.add(n);
+                }
+            }
             urlConnection.disconnect();
         } catch (MalformedURLException e) {
-            body = e.toString(); //Error URL incorrecta
+            e.toString(); //Error URL incorrecta
             e.printStackTrace();
         } catch (SocketTimeoutException e){
-            body = e.toString(); //Error: Finalizado el timeout esperando la respuesta del servidor.
+            e.toString(); //Error: Finalizado el timeout esperando la respuesta del servidor.
             e.printStackTrace();
         } catch (Exception e) {
-            body = e.toString();//Error diferente a los anteriores.
+            e.toString();//Error diferente a los anteriores.
             e.printStackTrace();
         }
-        return body;
+        consultaLista = true;
+        return buses;
     }
 
+    public boolean isMantener() {
+        return mantener;
+    }
+
+    public boolean isConsultaLista() {
+        return consultaLista;
+    }
+
+    public HttpURLConnection getUrlConnection() {
+        return urlConnection;
+    }
 
     private String readStream(InputStream in) throws IOException{
 
