@@ -1,9 +1,5 @@
 package com.example.apps_miocali_project.control;
 
-import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
-import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
-import com.getbase.floatingactionbutton.FloatingActionButton;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -11,43 +7,38 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.location.Criteria;
 import android.location.Location;
-
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.example.apps_miocali_project.R;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,12 +49,12 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private ProgressDialog pg;
 
+    android.support.design.widget.FloatingActionButton fabUbicacion;
     SupportMapFragment mapFragment;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
-    private float distanciaFiltro, distanciaRutas;
     private HashMap<Marker, String> mapParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
@@ -85,7 +76,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final double DEFAULT_LATITUD = 3.448972;
     private static final double DEFAULT_LONGITUD = -76.556218;
 
-    private double distanciaFiltro;
+    private float distanciaFiltro, distanciaRutas;
     private ConexionHTTPTReal darBusesTiempoReal;
     private RelativeLayout paradasLayout;
     private String idParada;
@@ -199,6 +190,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void puntosParadas(View v) {
         if(permisoPosicion){
         pintarPuntosParadas();}
+    }
+
+
+    public void mostrarRutasParada(){
+
+        Bundle bundle = new Bundle();
+        //MARKER CON LA ID_RUTA
+        String id_ruta="";
+        ArrayList<String> rutas = db.cargarRutasParada(id_ruta);
+        bundle.putStringArrayList("rutasParada",rutas);
+        StropDetailFragment fragmento = new StropDetailFragment();
+        fragmento.setArguments(bundle);
+
     }
 
     public void pintarPuntosParadas() {

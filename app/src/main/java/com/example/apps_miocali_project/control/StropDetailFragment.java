@@ -28,15 +28,10 @@ public class StropDetailFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private DataBase db;
 
     private String nombreParada;
     private ArrayList<String> rutasParada;
     private RecyclerView recyclerView;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
 
     public StropDetailFragment() {
@@ -60,18 +55,14 @@ public class StropDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_strop_detail, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
         ArrayList<String> rutasParada=new ArrayList<String>();
-        db= new DataBase(this.getContext());
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        rutasParada = (ArrayList<String>) this.getArguments().getStringArrayList("rutasParadas");
 
-        //rutasParada=db.cargarRutasParada();
         Recicler_View_Adapter_StopDetail adapter = new Recicler_View_Adapter_StopDetail(rutasParada, nombreParada ,getActivity());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
