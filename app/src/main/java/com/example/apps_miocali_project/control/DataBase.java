@@ -413,6 +413,8 @@ public class DataBase extends SQLiteOpenHelper{
             String linea = br.readLine();
             while (linea != null) {
                 String lec[] = linea.split(",");
+                double latitud = Double.parseDouble(lec[3]);
+                double longitud = Double.parseDouble(lec[4]);
                 agregarParada(lec[0],lec[1], lec[2], lec[3]);
                 linea = br.readLine();
             }
@@ -542,6 +544,7 @@ public class DataBase extends SQLiteOpenHelper{
       }catch(Exception e){
 
       }
+        mundo.setViaje(viaje);
         return  viaje;
     }
 
