@@ -502,14 +502,13 @@ public class DataBase extends SQLiteOpenHelper{
               }else{
                   bus = "Caminata";
               }
-              Log.d("SwanTagDest", bus);
               for (j = 0;j < locations.length();j++){
                   JSONObject loc = locations.getJSONObject(j);
                   String arr = loc.getString("arr");
                   String dep = loc.getString("dep");
                   String nom = loc.getString("name");
-                  double latitud = Double.parseDouble(locations.getJSONObject(j).getString("y").substring(0,0)+"."+locations.getJSONObject(j).getString("y").substring(1,locations.getJSONObject(j).getString("y").length()-1));
-                  double longitud = Double.parseDouble(locations.getJSONObject(j).getString("x").substring(0,2)+"."+locations.getJSONObject(j).getString("x").substring(3,locations.getJSONObject(j).getString("y").length()-1));
+                  double latitud = Double.parseDouble(locations.getJSONObject(j).getString("y").substring(0,1)+"."+locations.getJSONObject(j).getString("y").substring(1,locations.getJSONObject(j).getString("y").length()));
+                  double longitud = Double.parseDouble(locations.getJSONObject(j).getString("x").substring(0,3)+"."+locations.getJSONObject(j).getString("x").substring(3,locations.getJSONObject(j).getString("y").length()));
                   Destino dest = new Destino(nom, arr, dep, longitud, latitud, bus);
                   viaje.getDestinos().add(dest);
               }
@@ -520,7 +519,6 @@ public class DataBase extends SQLiteOpenHelper{
       }catch(Exception e){
 
       }
-
         return  viaje;
     }
 

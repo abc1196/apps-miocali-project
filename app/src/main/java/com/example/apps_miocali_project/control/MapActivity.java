@@ -4,6 +4,10 @@ package com.example.apps_miocali_project.control;
    pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje.",false, false);
    tareaAsyncPlanearViaje planearViaje = new tareaAsyncPlanearViaje(pg, latitudInicio, longitudInicio, latitudFinal , longitudFinal );
    planearViaje.execute();
+
+   pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje.",false, false);
+   tareaAsyncPlanearViaje planearViaje = new tareaAsyncPlanearViaje(pg, "3.341629", " -76.530383", "3.445393" , "-76.563856" );
+   planearViaje.execute();
    */
 
 
@@ -20,6 +24,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.apps_miocali_project.R;
@@ -50,6 +55,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ArrayList<Marker> listParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
+    private ConexionHTTPTReal darBusesTiempoReal;
 
 
     @Override
@@ -69,7 +75,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fabWifi=(FloatingActionButton) findViewById(R.id.accion_wifi);
         wifi=false;
         listWifi= new ArrayList<Marker>();
-
+        darBusesTiempoReal = new ConexionHTTPTReal();
     }
 
     @Override
@@ -81,6 +87,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //TODO
         if(!paradas){
             db.cargarModeloParadas();
+
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
@@ -139,6 +146,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //TODO
         if(!wifi){
             db.cargarModeloPuntosWifi();
+            ConexionHTTPTReal sacarBuses = new ConexionHTTPTReal();
+            sacarBuses.start();
+            while(sacarBuses.isAlive()){
+
+            }
+            for(int i=0;i<sacarBuses.getBuses().size();i++){
+                Log.d("ruta", sacarBuses.getBuses().get(i).getRouteId()+"");
+                Log.d("lati", sacarBuses.getBuses().get(i).getLatitud()+"");
+                Log.d("longi", sacarBuses.getBuses().get(i).getLongitud()+"");
+                Log.d("stop", sacarBuses.getBuses().get(i).getStopId()+"");
+            }
             for (int i = 0; i<10;i++) {
                 Double lat = db.getMundo().getEstacionesWifi().get(i).getLatitud();
                 Double lng = db.getMundo().getEstacionesWifi().get(i).getLongitud();
@@ -196,5 +214,37 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             pg.dismiss();
         }
     }
+    public class tareaAsyncBuscarRutaParada extends AsyncTask<Void, Void, Void> {
 
+
+
+        public tareaAsyncBuscarRutaParada(String idParada, String idRoute) {
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try{
+                darBusesTiempoReal.start();
+                while (darBusesTiempoReal.isMantener()){
+                    if(darBusesTiempoReal.isConsultaLista()){
+                        
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected  void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            pg.dismiss();
+        }
+    }
 }
