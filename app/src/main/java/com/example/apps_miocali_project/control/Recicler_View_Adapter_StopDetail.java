@@ -18,11 +18,13 @@ public class Recicler_View_Adapter_StopDetail extends RecyclerView.Adapter<Recic
 
     static ArrayList<String> rutasParadas;
     static Context context;
+    static String idParada;
     static int mShortAnimationDuration;
     private static Animator mCurrentAnimator;
 
-    public Recicler_View_Adapter_StopDetail(ArrayList<String> rutasParadas, Context context) {
+    public Recicler_View_Adapter_StopDetail(ArrayList<String> rutasParadas, String idParada, Context context) {
         this.rutasParadas = rutasParadas;
+        this.idParada=idParada;
         this.context = context;
     }
 

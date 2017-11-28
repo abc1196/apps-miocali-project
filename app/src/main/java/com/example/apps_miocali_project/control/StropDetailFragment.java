@@ -70,11 +70,12 @@ public class StropDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Recicler_View_Adapter_StopDetail adapter = new Recicler_View_Adapter_StopDetail(rutasParada, getActivity());
+
+        //rutasParada=db.cargarRutasParada();
+        Recicler_View_Adapter_StopDetail adapter = new Recicler_View_Adapter_StopDetail(rutasParada, nombreParada ,getActivity());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        //rutasParada=db.cargarRutasParada();
         return inflater.inflate(R.layout.fragment_strop_detail, container, false);
     }
 
