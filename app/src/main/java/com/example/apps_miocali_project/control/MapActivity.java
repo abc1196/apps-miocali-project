@@ -1,9 +1,5 @@
 package com.example.apps_miocali_project.control;
 
-import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
-import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
-import com.getbase.floatingactionbutton.FloatingActionButton;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -11,12 +7,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.location.Criteria;
 import android.location.Location;
-
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -26,7 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,17 +32,13 @@ import com.example.apps_miocali_project.R;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +55,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
-    private double distanciaFiltro, distanciaRutas;
+    private double distanciaFiltro;
+    private float distanciaRutas;
     private HashMap<Marker, String> mapParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
