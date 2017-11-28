@@ -23,9 +23,9 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.apps_miocali_project.R;
-
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     SupportMapFragment mapFragment;
     android.support.design.widget.FloatingActionButton fabUbicacion;
@@ -51,7 +51,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     boolean paradas,recargas,wifi;
     private DataBase db;
     private GoogleMap map;
-    private float distanciaFiltro;
+    private float distanciaFiltro, distanciaRutas;
     private HashMap<Marker, String> mapParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
@@ -65,6 +65,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         idParada="";
         txtRutaNombre=(TextView)findViewById(R.id.txtRutaNombre);
+        distanciaRutas=500;
         distanciaFiltro=500;
         db= new DataBase(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -213,8 +214,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         builder.setMessage("Establece radio máximo");
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_filter_settings, null);
+        final TextView txtDistanciaPuntos=(TextView)view.findViewById(R.id.txtDistanciaPuntos);
         final TextView txtDistancia= (TextView) view.findViewById(R.id.txtDistancia);
         final CrystalSeekbar seekbar=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar4);
+        final CrystalSeekbar seekbar1=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar6);
         seekbar.setMinStartValue(distanciaFiltro ).apply();
         seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
@@ -223,6 +226,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 txtDistancia.setText(String.valueOf(value) + " m");
             }
         });
+        seekbar1.setMinStartValue(distanciaRutas).apply();
+        seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
+            @Override
+            public void valueChanged(Number value) {
+                distanciaRutas=value.floatValue();
+                txtDistanciaPuntos.setText(String.valueOf(value) + "m");
+            }
+        });
+
         builder.setView(view);
         builder.setPositiveButton("Aceptar",
                 new DialogInterface.OnClickListener() {

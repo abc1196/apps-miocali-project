@@ -85,8 +85,6 @@ public class FilterSettingsFragment extends Fragment {
             rootView = inflater.inflate(R.layout.fragment_filter_settings, container, false);
             seekbar=(CrystalSeekbar)rootView.findViewById(R.id.rangeSeekbar4);
             txtDistancia=(TextView)rootView.findViewById(R.id.txtDistancia);
-            tvMin = (TextView) rootView.findViewById(R.id.textMin5);
-            tvMax = (TextView) rootView.findViewById(R.id.textMax5);
             seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
                 @Override
                 public void valueChanged(Number minValue) {
