@@ -6,23 +6,24 @@ package com.example.apps_miocali_project.control;
 
 
 import android.content.ContentValues;
-import java.io.*;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
-import android.util.Log;
 
 import com.example.apps_miocali_project.R;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
-
-
-
-
-import org.json.*;
 
 import Modelo.Destino;
 import Modelo.Parada;
@@ -310,6 +311,29 @@ public class DataBase extends SQLiteOpenHelper{
             }
         }
     }
+    public ArrayList<String> cargarRutasParada(String id_parada){
+
+        ArrayList<String> rutas=new ArrayList<String>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT "+ ID_RUTA+" FROM " + this.TABLA_STOPS +" WHERE "+this.ID_PARADA+" LIKE "+"'"+id_parada+"'";
+        Cursor busqueda = db.rawQuery(query,null);
+        if(busqueda.moveToFirst()){
+            while (busqueda.moveToNext()){
+                String id_ruta_busqueda = busqueda.getString(0);
+                String query2 = "SELECT "+ this.IDENT_RUTA+" FROM " + this.TABLA_RUTAS +" WHERE "+this.ID_RUTA+" LIKE "+"'"+id_ruta_busqueda+"'";
+                Cursor busqueda2 = db.rawQuery(query2,null);
+                if(busqueda2.moveToFirst()){
+
+                    String rutaActual=busqueda2.getString(0);
+                    if(!rutas.contains(rutaActual)) {
+
+                        rutas.add(rutaActual);
+                    }
+                }
+            }
+        }
+        return rutas;
+    }
     public void cargarModeloPuntosRecarga() {
         SQLiteDatabase db = this.getReadableDatabase();
         String q = "SELECT * FROM " + TABLA_PUNTOS_RECARGA;
@@ -349,7 +373,6 @@ public class DataBase extends SQLiteOpenHelper{
                 mundo.getParadasDelSistema().add(new Parada(id, nombre, latitud, longitud));
             }
         }
-
     }
     public void cargarModeloRutas(){
         SQLiteDatabase db = this.getReadableDatabase();
