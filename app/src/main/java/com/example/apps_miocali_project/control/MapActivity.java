@@ -20,6 +20,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -32,9 +33,11 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.example.apps_miocali_project.R;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -58,8 +61,8 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private ProgressDialog pg;
 
-    SupportMapFragment mapFragment;
     android.support.design.widget.FloatingActionButton fabUbicacion;
+    SupportMapFragment mapFragment;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
     private DataBase db;
@@ -198,6 +201,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void puntosParadas(View v) {
         if(permisoPosicion){
         pintarPuntosParadas();}
+    }
+
+
+    public void mostrarRutasParada(){
+
+        Bundle bundle = new Bundle();
+        //MARKER CON LA ID_RUTA
+        String id_ruta="";
+        ArrayList<String> rutas = db.cargarRutasParada(id_ruta);
+        bundle.putStringArrayList("rutasParada",rutas);
+        StropDetailFragment fragmento = new StropDetailFragment();
+        fragmento.setArguments(bundle);
+
     }
 
     public void pintarPuntosParadas() {
@@ -436,7 +452,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 txtDistancia.setText(String.valueOf(value) + " m");
             }
         });
-        seekbar1.setMinStartValue((float)distanciaRutas).apply();
+        seekbar1.setMinStartValue(distanciaRutas).apply();
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
