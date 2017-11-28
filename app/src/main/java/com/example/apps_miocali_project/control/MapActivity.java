@@ -59,11 +59,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ProgressDialog pg;
 
     SupportMapFragment mapFragment;
+    android.support.design.widget.FloatingActionButton fabUbicacion;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
-    private float distanciaFiltro, distanciaRutas;
+    private double distanciaFiltro, distanciaRutas;
     private HashMap<Marker, String> mapParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
@@ -84,8 +85,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final float DEFAULT_ZOOM = 13;
     private static final double DEFAULT_LATITUD = 3.448972;
     private static final double DEFAULT_LONGITUD = -76.556218;
-
-    private double distanciaFiltro;
     private ConexionHTTPTReal darBusesTiempoReal;
     private RelativeLayout paradasLayout;
     private String idParada;
@@ -437,7 +436,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 txtDistancia.setText(String.valueOf(value) + " m");
             }
         });
-        seekbar1.setMinStartValue(distanciaRutas).apply();
+        seekbar1.setMinStartValue((float)distanciaRutas).apply();
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
