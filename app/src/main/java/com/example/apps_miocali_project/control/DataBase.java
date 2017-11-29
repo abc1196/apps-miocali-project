@@ -40,7 +40,7 @@ public class DataBase extends SQLiteOpenHelper{
     private static final String LOCAL_DATABASE_NAME = "basePuntosMapa";
 
 
-
+    private ArrayList<String> rutas;
     private SistemaMio mundo;
 
     private static final int DATABASE_VERSION = 1;
@@ -115,6 +115,7 @@ public class DataBase extends SQLiteOpenHelper{
     public DataBase(Context context){
         super(context,BASE_PUNTOS_MAPA ,null,DATABASE_VERSION);
         //iniciar el modelo
+        rutas=new ArrayList<>();
         mundo = new SistemaMio();
         try {
             createDataBase(context);
@@ -313,7 +314,7 @@ public class DataBase extends SQLiteOpenHelper{
     }
     public ArrayList<String> cargarRutasParada(String id_parada){
 
-        ArrayList<String> rutas=new ArrayList<String>();
+        rutas=new ArrayList<String>();
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT "+ ID_RUTA+" FROM " + this.TABLA_STOPS +" WHERE "+this.ID_PARADA+" LIKE "+"'"+id_parada+"'";
         Cursor busqueda = db.rawQuery(query,null);
@@ -334,6 +335,26 @@ public class DataBase extends SQLiteOpenHelper{
         }
         return rutas;
     }
+
+    public String getRutasParada(){
+        String rutasParadas="";
+        if (rutas!=null){
+            for (int i=0;i<rutas.size();i++){
+                int a=i;
+                if((a+1)<rutas.size()){
+                    rutasParadas+=rutas.get(i)+";";
+                }else{
+                    rutasParadas+=rutas.get(i);
+                }
+            }
+        }
+        //rutasParadas=rutasParadas.substring(0,rutasParadas.length()-1);
+        return rutasParadas;
+    }
+
+
+
+
     public void cargarModeloPuntosRecarga() {
         SQLiteDatabase db = this.getReadableDatabase();
         String q = "SELECT * FROM " + TABLA_PUNTOS_RECARGA;

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
@@ -171,8 +172,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if(mapParadas.containsKey(marker)){
                     Log.d("ALEJOTAG",marker.getTitle());
                     idParada=mapParadas.get(marker);
-                    txtRutaNombre.setText(marker.getTitle());
-                    paradasLayout.setVisibility(View.VISIBLE);
+                    Intent intent=new Intent(getActivity(), ParadaActivity.class);
+                    intent.putExtra("parada",idParada);
+                    startActivity(intent);
+
                 }
                 return false;
             }
@@ -192,18 +195,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         pintarPuntosParadas();}
     }
 
-
-    public void mostrarRutasParada(){
-
-        Bundle bundle = new Bundle();
-        //MARKER CON LA ID_RUTA
-        String id_ruta="";
-        ArrayList<String> rutas = db.cargarRutasParada(id_ruta);
-        bundle.putStringArrayList("rutasParada",rutas);
-        StropDetailFragment fragmento = new StropDetailFragment();
-        fragmento.setArguments(bundle);
-
-    }
 
     public void pintarPuntosParadas() {
         if (!paradas) {
