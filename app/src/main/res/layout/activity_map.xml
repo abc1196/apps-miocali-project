@@ -43,77 +43,101 @@
         />
 
     <include layout="@layout/map_fragment" />
-
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:id="@+id/menu_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        fab:fab_addButtonColorNormal="?attr/colorPrimary"
-        fab:fab_addButtonSize="normal"
-        fab:fab_labelStyle="@style/Etiquetas" >
-
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/accion_filtro"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorPrimary"
-            fab:fab_size="mini"
-            fab:fab_title="@string/filtro"
-            android:src="@drawable/ic_filter_list_black_24dp"
-            android:tint="@android:color/white"
-            android:onClick="activarMenuFiltro"/>
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/accion_paradas"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorDisabled"
-            fab:fab_size="mini"
-            fab:fab_title="@string/paradas"
-            android:src="@drawable/ic_directions_bus_black_24dp"
-            android:tint="@android:color/white"
-            android:onClick="puntosParadas"/>
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/accion_recargas"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorDisabled"
-            fab:fab_size="mini"
-            fab:fab_title="@string/recargas"
-            android:src="@drawable/ic_credit_card_black_24dp"
-            android:tint="@android:color/white"
-            android:onClick="puntosRecarga"/>
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/accion_wifi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorDisabled"
-            fab:fab_size="mini"
-            fab:fab_title="@string/wifi"
-            android:src="@drawable/ic_wifi_black_24dp"
-            android:tint="@android:color/white"
-            android:onClick="puntosWifi"/>
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabUbicacion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:src="@drawable/ic_gps_fixed_black_24dp"
-        android:tint="@android:color/white"
-        android:onClick="darUbicacionActual"
-        android:layout_marginBottom="16dp"/>
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"></LinearLayout>
+        android:layout_gravity="bottom">
+
+        <android.support.design.widget.CoordinatorLayout android:id="@+id/menuLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_above="@+id/paradaLayout">
+            <com.getbase.floatingactionbutton.FloatingActionsMenu
+                android:id="@+id/menu_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_margin="16dp"
+                fab:fab_addButtonColorNormal="?attr/colorPrimary"
+                fab:fab_addButtonSize="normal"
+                fab:fab_labelStyle="@style/Etiquetas" >
+
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/accion_filtro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    fab:fab_colorNormal="@color/colorPrimary"
+                    fab:fab_size="mini"
+                    fab:fab_title="@string/filtro"
+                    android:src="@drawable/ic_filter_list_black_24dp"
+                    android:tint="@android:color/white"
+                    android:onClick="activarMenuFiltro"/>
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/accion_paradas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    fab:fab_colorNormal="@color/colorDisabled"
+                    fab:fab_size="mini"
+                    fab:fab_title="@string/paradas"
+                    android:src="@drawable/ic_directions_bus_black_24dp"
+                    android:tint="@android:color/white"
+                    android:onClick="puntosParadas"/>
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/accion_recargas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    fab:fab_colorNormal="@color/colorDisabled"
+                    fab:fab_size="mini"
+                    fab:fab_title="@string/recargas"
+                    android:src="@drawable/ic_credit_card_black_24dp"
+                    android:tint="@android:color/white"
+                    android:onClick="puntosRecarga"/>
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/accion_wifi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    fab:fab_colorNormal="@color/colorDisabled"
+                    fab:fab_size="mini"
+                    fab:fab_title="@string/wifi"
+                    android:src="@drawable/ic_wifi_black_24dp"
+                    android:tint="@android:color/white"
+                    android:onClick="puntosWifi"/>
+
+            </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabUbicacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:src="@drawable/ic_gps_fixed_black_24dp"
+                android:tint="@android:color/white"
+                android:onClick="darUbicacionActual"
+                android:layout_marginBottom="16dp"/>
+        </android.support.design.widget.CoordinatorLayout>
+
+
+        <RelativeLayout android:id="@+id/paradaLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:visibility="gone">
+            <TextView android:id="@+id/txtRutaNombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="NOMBRE RUTA"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:layout_margin="8dp"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>
