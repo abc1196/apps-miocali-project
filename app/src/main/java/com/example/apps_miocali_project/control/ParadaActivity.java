@@ -25,10 +25,12 @@ public class ParadaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parada);
         db=new DataBase(getApplicationContext());
-        idParada = getIntent().getStringExtra("parada");
+        idParada = (String)getIntent().getStringExtra("parada");
         Log.d("ID_PARADA",idParada);
         rutasParada=new ArrayList<>();
         rutasParada=db.cargarRutasParada(idParada);
+
+        Log.d("Nombre",rutasParada.get(0));
 
     }
 

@@ -172,6 +172,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if(mapParadas.containsKey(marker)){
                     Log.d("ALEJOTAG",marker.getTitle());
                     idParada=mapParadas.get(marker);
+                    Log.d("idParada===",idParada);
+                    String nombreParada=idParada.toString();
                     Intent intent=new Intent(getActivity(), ParadaActivity.class);
                     intent.putExtra("parada",idParada);
                     startActivity(intent);
