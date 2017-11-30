@@ -29,18 +29,9 @@
             </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="8dp"
-        android:background="@android:color/white"
-        android:text="Busca tu destino!"
-        android:textColor="@android:color/darker_gray"
-        android:drawableLeft="@android:drawable/ic_menu_search"
-        />
+
+
+
 
     <include layout="@layout/map_fragment" />
 

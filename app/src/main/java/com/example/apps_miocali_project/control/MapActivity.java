@@ -5,14 +5,17 @@ import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Criteria;
 import android.location.Location;
@@ -20,7 +23,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -29,35 +34,55 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.apps_miocali_project.R;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import Modelo.Destino;
+import Modelo.Viaje;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener  {
     private ProgressDialog pg;
     SupportMapFragment mapFragment;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
-
+    private PlaceAutocompleteFragment autocompleteFragment;
 
     private ArrayList<Marker> listParadas;
     private ArrayList<Marker> listRecargas;
@@ -67,6 +92,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private LocationListener locationListener;
 
     private Location ultimaLocacion;
+    private ArrayList<Marker> marcadoresPlanearRuta;
+    private Button btnBusquedaDestino;
 
 
     private final static String KEY_LOCATION_LATITUD = "location latitud";
@@ -90,6 +117,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         db = new DataBase(this);
 
         ubicacionActivada = true;
+       // btnBusquedaDestino = (Button)findViewById(R.id.btnBuscador);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -103,7 +131,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fabWifi = (FloatingActionButton) findViewById(R.id.accion_wifi);
         wifi = false;
         listWifi = new ArrayList<Marker>();
+        marcadoresPlanearRuta= new ArrayList<Marker>();
+
         distanciaFiltro = 500;
+
+        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(Place.TYPE_COUNTRY)
+                .setCountry("CO")
+                .build();
+        autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setOnPlaceSelectedListener(this);
+        autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button).setOnClickListener(this);
+        autocompleteFragment.setFilter(autocompleteFilter);
+        autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(3.336139, -76.671709),new LatLng(3.519145, -76.447176)));
+
+
 
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
@@ -162,7 +204,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map = googleMap;
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
-        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+//        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
     }
 
     public void puntosParadas(View v) {
@@ -172,6 +214,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void pintarPuntosParadas() {
         if (!paradas) {
+            pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje.",false, false);
+            tareaAsyncPlanearViaje planear = new tareaAsyncPlanearViaje(pg,"3.341628", "-76.530501", "3.398983", "-76.531353");
+            planear.execute();
             db.cargarModeloParadas();
             for (int i = 0; i < db.getMundo().getParadasDelSistema().size(); i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
@@ -216,6 +261,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                            .title("Hola")
+                            .snippet("HOLAHOLA")
                             .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_recargas));
                     Marker marker = map.addMarker(marker_onclick);
                     listRecargas.add(marker);
@@ -341,6 +388,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return out;
     }
 
+
     public void actualizarLocalizaciónActual() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
@@ -357,6 +405,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
         }
     }
+
     public void darUbicacionActual(View v) {
         if(ultimaLocacion==null){
             ultimaLocacion = new Location("");
@@ -422,6 +471,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    @Override
+    public void onClick(View view) {
+
+    }
+    @Override
+    public void onPlaceSelected(Place place) {
+            LatLng sel = place.getLatLng();
+            double lat = sel.latitude;
+            double lng = sel.longitude;
+            String nom = place.getName().toString();
+            String dir = place.getAddress().toString();
+            Log.d("Lugares", lat+"");
+        Log.d("Lugares", lng+"");
+        Log.d("Lugares", nom+"");
+        Log.d("Lugares", dir+"");
+
+    }
+    @Override
+    public void onError(Status status) {
+
+    }
+
     public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
 
         private ProgressDialog pg;
@@ -445,6 +517,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         protected Void doInBackground(Void... voids) {
             try{
                 db.planearRuta(x1,y1,x2,y2);
+
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -453,6 +526,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
+            Intent intent = new Intent(getApplicationContext(), PViajeActivity.class);
+            intent.putExtra("viaje", db.getMundo().getViaje() );
+            intent.putExtra("x1", x1);
+            intent.putExtra("x2", x2);
+            intent.putExtra("y1", y1);
+            intent.putExtra("y2", y2);
+            startActivity(intent);
             pg.dismiss();
         }
     }
@@ -489,5 +569,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             pg.dismiss();
         }
     }
+
 }
 
