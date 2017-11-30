@@ -1,60 +1,47 @@
-package layout;
+package com.example.apps_miocali_project.control;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.InflateException;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
-import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 
 import com.example.apps_miocali_project.R;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FilterSettingsFragment.OnFragmentInteractionListener} interface
+ * {@link StropDetailFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FilterSettingsFragment#newInstance} factory method to
+ * Use the {@link StropDetailFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FilterSettingsFragment extends Fragment {
+public class StropDetailFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private CrystalSeekbar seekbar;
-    private TextView txtDistancia, tvMin, tvMax;
-    protected View rootView;
-
+    private String nombreParada;
+    private ArrayList<String> rutasParada;
+    private RecyclerView recyclerView;
     private OnFragmentInteractionListener mListener;
 
-
-
-    public FilterSettingsFragment() {
+    public StropDetailFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FilterSettingsFragment.
-     */
+
     // TODO: Rename and change types and number of parameters
-    public static FilterSettingsFragment newInstance(String param1, String param2) {
-        FilterSettingsFragment fragment = new FilterSettingsFragment();
+    public static StropDetailFragment newInstance(String param1, String param2) {
+        StropDetailFragment fragment = new StropDetailFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -62,40 +49,25 @@ public class FilterSettingsFragment extends Fragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
+        View rootView = inflater.inflate(R.layout.fragment_strop_detail, container, false);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
+        ArrayList<String> rutasParada=new ArrayList<String>();
+
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        rutasParada = (ArrayList<String>) this.getArguments().getStringArrayList("rutasParadas");
 
-        if (rootView != null) {
-            ViewGroup parent = (ViewGroup) rootView.getParent();
-            if (parent != null)
-                parent.removeView(rootView);
-        }
+        Recicler_View_Adapter_StopDetail adapter = new Recicler_View_Adapter_StopDetail(rutasParada, nombreParada ,getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        try {
-            rootView = inflater.inflate(R.layout.fragment_filter_settings, container, false);
-            seekbar=(CrystalSeekbar)rootView.findViewById(R.id.rangeSeekbar4);
-            txtDistancia=(TextView)rootView.findViewById(R.id.txtDistancia);
-            seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
-                @Override
-                public void valueChanged(Number minValue) {
-                    txtDistancia.setText(String.valueOf(minValue)+ "m");
-                }
-            });
-        } catch (InflateException e) {
-            e.printStackTrace();
-        }
-
-        return rootView;
+        return inflater.inflate(R.layout.fragment_strop_detail, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

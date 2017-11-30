@@ -19,25 +19,27 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Criteria;
 import android.location.Location;
-
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.example.apps_miocali_project.R;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -47,6 +49,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -66,6 +69,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,11 +82,15 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener  {
     private ProgressDialog pg;
+
+    android.support.design.widget.FloatingActionButton fabUbicacion;
     SupportMapFragment mapFragment;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
+    private float distanciaRutas;
+    private HashMap<Marker, String> mapParadas;
     private PlaceAutocompleteFragment autocompleteFragment;
 
     private ArrayList<Marker> listParadas;
@@ -109,28 +118,38 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private double distanciaFiltro;
     private ConexionHTTPTReal darBusesTiempoReal;
+    private RelativeLayout paradasLayout;
+    private String idParada;
+    private TextView txtRutaNombre;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        db = new DataBase(this);
-
+        idParada="";
+        txtRutaNombre=(TextView)findViewById(R.id.txtRutaNombre);
+        distanciaRutas=500;
+        distanciaFiltro=500;
+        db= new DataBase(this);
         ubicacionActivada = true;
-       // btnBusquedaDestino = (Button)findViewById(R.id.btnBuscador);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        fabParadas = (FloatingActionButton) findViewById(R.id.accion_paradas);
-        paradas = false;
+        paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
+        fabUbicacion=(android.support.design.widget.FloatingActionButton)findViewById(R.id.fabUbicacion);
+        fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
+        paradas=false;
         listParadas = new ArrayList<Marker>();
-        fabRecargas = (FloatingActionButton) findViewById(R.id.accion_recargas);
-        recargas = false;
-        listRecargas = new ArrayList<Marker>();
-        fabWifi = (FloatingActionButton) findViewById(R.id.accion_wifi);
-        wifi = false;
-        listWifi = new ArrayList<Marker>();
+        mapParadas= new HashMap<Marker, String>();
+        fabRecargas=(FloatingActionButton) findViewById(R.id.accion_recargas);
+        recargas=false;
+        listRecargas= new ArrayList<Marker>();
+        fabWifi=(FloatingActionButton) findViewById(R.id.accion_wifi);
+        wifi=false;
+        listWifi= new ArrayList<Marker>();
+
+
         marcadoresPlanearRuta= new ArrayList<Marker>();
 
         distanciaFiltro = 500;
@@ -204,7 +223,27 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map = googleMap;
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
-//        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if(mapParadas.containsKey(marker)){
+                    Log.d("ALEJOTAG",marker.getTitle());
+                    idParada=mapParadas.get(marker);
+                    txtRutaNombre.setText(marker.getTitle());
+                    paradasLayout.setVisibility(View.VISIBLE);
+                }
+                return false;
+            }
+        });
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(paradasLayout.getVisibility() == View.VISIBLE) {
+                    paradasLayout.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     public void puntosParadas(View v) {
@@ -212,33 +251,52 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         pintarPuntosParadas();}
     }
 
+
+    public void mostrarRutasParada(){
+
+        Bundle bundle = new Bundle();
+        //MARKER CON LA ID_RUTA
+        String id_ruta="";
+        ArrayList<String> rutas = db.cargarRutasParada(id_ruta);
+        bundle.putStringArrayList("rutasParada",rutas);
+        StropDetailFragment fragmento = new StropDetailFragment();
+        fragmento.setArguments(bundle);
+
+    }
+
     public void pintarPuntosParadas() {
         if (!paradas) {
-            pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje.",false, false);
-            tareaAsyncPlanearViaje planear = new tareaAsyncPlanearViaje(pg,"3.341628", "-76.530501", "3.398983", "-76.531353");
-            planear.execute();
             db.cargarModeloParadas();
             for (int i = 0; i < db.getMundo().getParadasDelSistema().size(); i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
                 if (inRange(lat, lng, distanciaFiltro)) {
+                    String id=db.getMundo().getParadasDelSistema().get(i).getId();
+                    String nombre=db.getMundo().getParadasDelSistema().get(i).getNombre();
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
-                    Marker marker = map.addMarker(marker_onclick);
-                    listParadas.add(marker);
+                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas)).title(nombre);
+                    Marker marker=map.addMarker(marker_onclick);
+                    mapParadas.put(marker,id);
+                    // listParadas.add(marker);
                 }
             }
             fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
             paradas = true;
 
-        } else {
-            for (int i = 0; i < listParadas.size(); i++) {
-                Marker marker = listParadas.get(i);
+        }else{
+
+            for(Map.Entry<Marker,String> entry: mapParadas.entrySet()){
+                Marker marker= entry.getKey();
                 marker.remove();
 
             }
-            listParadas.clear();
+            mapParadas.clear();
+//            for (int i = 0; i<listParadas.size();i++) {
+//                Marker marker= listParadas.get(i);
+//                marker.remove();
+//            }
+//            listParadas.clear();
             fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
             paradas = false;
 
@@ -261,8 +319,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .title("Hola")
-                            .snippet("HOLAHOLA")
                             .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_recargas));
                     Marker marker = map.addMarker(marker_onclick);
                     listRecargas.add(marker);
@@ -434,8 +490,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         builder.setMessage("Establece radio máximo");
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_filter_settings, null);
+        final TextView txtDistanciaPuntos=(TextView)view.findViewById(R.id.txtDistanciaPuntos);
         final TextView txtDistancia= (TextView) view.findViewById(R.id.txtDistancia);
         final CrystalSeekbar seekbar=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar4);
+        final CrystalSeekbar seekbar1=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar6);
         seekbar.setMinStartValue((float) distanciaFiltro ).apply();
         seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
@@ -444,6 +502,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 txtDistancia.setText(String.valueOf(value) + " m");
             }
         });
+        seekbar1.setMinStartValue(distanciaRutas).apply();
+        seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
+            @Override
+            public void valueChanged(Number value) {
+                distanciaRutas=value.floatValue();
+                txtDistanciaPuntos.setText(String.valueOf(value) + "m");
+            }
+        });
+
         builder.setView(view);
         builder.setPositiveButton("Aceptar",
                 new DialogInterface.OnClickListener() {

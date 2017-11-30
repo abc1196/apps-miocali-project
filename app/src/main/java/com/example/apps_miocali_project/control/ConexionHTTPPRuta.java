@@ -30,10 +30,9 @@ private HttpURLConnection urlConnection;
     public ConexionHTTPPRuta(String x1, String y1, String x2, String y2) {
         this.x1 = x1;
         this.x2 = x2;
-        this.y2 = y2;
         this.y1 = y1;
+        this.y2 = y2;
         ruta ="http://tuyo.herokuapp.com/request-route?x1=" + this.x1 + "&y1=" + this.y1+ "&x2=" + this.x2 + "&y2=" + this.y2 + "&mode=lessBuses";
-        Log.d("ruta", ruta);
     }
 
     public String getRespuesta() {
