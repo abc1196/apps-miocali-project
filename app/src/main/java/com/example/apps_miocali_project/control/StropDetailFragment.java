@@ -38,7 +38,6 @@ public class StropDetailFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     // TODO: Rename and change types and number of parameters
     public static StropDetailFragment newInstance(String param1, String param2) {
         StropDetailFragment fragment = new StropDetailFragment();

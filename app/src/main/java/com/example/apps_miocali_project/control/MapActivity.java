@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -182,7 +183,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if(mapParadas.containsKey(marker)){
                     Log.d("ALEJOTAG",marker.getTitle());
                     idParada=mapParadas.get(marker);
-                    txtRutaNombre.setText(marker.getTitle());
+                    mostrarRutasParada(marker.getTitle());
+                   // txtRutaNombre.setText(marker.getTitle());
                     paradasLayout.setVisibility(View.VISIBLE);
                 }
                 return false;
@@ -204,16 +206,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-    public void mostrarRutasParada(){
+    public void mostrarRutasParada(String nom){
 
-        Bundle bundle = new Bundle();
-        //MARKER CON LA ID_RUTA
-        String id_ruta="";
-        ArrayList<String> rutas = db.cargarRutasParada(id_ruta);
-        bundle.putStringArrayList("rutasParada",rutas);
-        StropDetailFragment fragmento = new StropDetailFragment();
-        fragmento.setArguments(bundle);
-
+        Intent intent= new Intent(getActivity(),ParadaActivity.class);
+        intent.putExtra("parada",idParada);
+        intent.putExtra("nombreParada",nom);
+        startActivity(intent);
     }
 
     public void pintarPuntosParadas() {
@@ -452,7 +450,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 txtDistancia.setText(String.valueOf(value) + " m");
             }
         });
-        seekbar1.setMinStartValue(distanciaRutas).apply();
+        seekbar1.setMinStartValue((float)distanciaRutas).apply();
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {

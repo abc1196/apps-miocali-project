@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.apps_miocali_project.R;
 
@@ -41,7 +42,7 @@ public class Recicler_View_Adapter_StopDetail extends RecyclerView.Adapter<Recic
     public void onBindViewHolder(Recicler_View_Adapter_StopDetail.View_Holder holder, int position) {
 
         //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
-        //holder.title.setText(rutasParadas.get(position).getTitulo());
+        holder.title.setText(rutasParadas.get(position));
         //animate(holder);
 
     }
@@ -67,10 +68,12 @@ public class Recicler_View_Adapter_StopDetail extends RecyclerView.Adapter<Recic
 
         //PARA EL BOTON DE CARD VIEW
         //Button rutaid=new Button();
+        TextView title;
         CardView cv;
         View_Holder(final View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.card_view);
+            title=(TextView) itemView.findViewById(R.id.txtRutaNombre);
             //AQUI VA EL LISTENER DEL BOTON QUE TIENE EL NOMBRE DE RUTA
             //imageView.setOnClickListener(new View.OnClickListener() {
               //  @Override
