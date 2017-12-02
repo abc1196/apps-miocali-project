@@ -4,6 +4,8 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -103,6 +105,7 @@ public class ParadaActivity extends AppCompatActivity {
                     txtWeb.setText(getResources().getString(R.string.info_buses));
                     activarBuses=false;
                     infoTiempos.clear();
+                    txtError.setText("");
                     recyclerViewTime.setVisibility(View.GONE);
                 }
             }
@@ -212,13 +215,7 @@ public class ParadaActivity extends AppCompatActivity {
         return this;
     }
 
-    public void onClick(View view) {
 
-        // Intent intent = new Intent(this, HomeActivity.class);
-        this.finish();
-        // startActivity(intent);
-
-    }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
