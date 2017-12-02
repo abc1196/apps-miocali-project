@@ -153,7 +153,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
         autocompleteFragment.setFilter(autocompleteFilter);
         autocompleteFragment.setHint("Busca tu destino!");
-        autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(3.336139, -76.671709),new LatLng(3.519145, -76.447176)));
+        autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(3.277502, -76.605318),new LatLng(3.515400, -76.447645)));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -260,7 +260,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         inflater.inflate(R.menu.menu, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -327,7 +326,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     //TODO
 
     }
-
     public void puntosParadas(View v) {
         if(permisoPosicion&&!paradas){
         pintarPuntosParadas();
@@ -343,8 +341,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.putBoolean(PARADAS_ACTIVAS, paradas);
 
     }
-
-
     public void mostrarParada(View v){
 
         Intent intent= new Intent(getActivity(),ParadaActivity.class);
@@ -352,7 +348,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         intent.putExtra("nombreParada",nomParada);
         startActivity(intent);
     }
-
     public void pintarPuntosParadas() {
             db.cargarModeloParadas();
             for (int i = 0; i < db.getMundo().getParadasDelSistema().size(); i++) {
@@ -368,19 +363,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     mapParadas.put(marker,id);
                 }
             }
-
     }
-
     public void borrarPuntosParada(){
         for(Map.Entry<Marker,String> entry: mapParadas.entrySet()){
             Marker marker= entry.getKey();
             marker.remove();
-
         }
         mapParadas.clear();
     }
-
-
     public void puntosRecarga(View v) {
         if(permisoPosicion&&!recargas) {
             pintarPuntosRecarga();
@@ -394,10 +384,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(RECARGAS_ACTIVAS, recargas);
-
-
     }
-
     public void pintarPuntosRecarga() {
             db.cargarModeloPuntosRecarga();
             for (int i = 0; i < db.getMundo().getPuntosRecarga().size(); i++) {
@@ -414,7 +401,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
 
     }
-
     public void borrarPuntosRecarga(){
         for(Map.Entry<Marker,String> entry: mapRecargas.entrySet()){
             Marker marker= entry.getKey();
@@ -423,8 +409,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         mapRecargas.clear();
     }
-
-
     public void puntosWifi(View v) {
         if(permisoPosicion&&!wifi) {
             pintarPuntosWifi();
@@ -440,7 +424,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.putBoolean(WIFI_ACTIVAS, wifi);
 
     }
-
     public void pintarPuntosWifi() {
             db.cargarModeloPuntosWifi();
             for (int i = 0; i < db.getMundo().getEstacionesWifi().size(); i++) {
@@ -537,8 +520,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         return out;
     }
-
-
     public void actualizarLocalizaciónActual() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
@@ -575,11 +556,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
-
     public void activarMenuBuses(View v){
         new tareaAsyncBuscarRutaParada(idParada,"P10A").execute();
     }
-
     public void activarMenuFiltro(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
@@ -665,7 +644,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onError(Status status) {
 
     }
-
     public void planearViaje(View v){
         if(!marcadoresPlanearRuta.isEmpty()){
             pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje",false, false);
@@ -673,7 +651,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             new tareaAsyncPlanearViaje(pg,Double.toString(ultimaLocacion.getLatitude()),Double.toString(ultimaLocacion.getLongitude()), Double.toString(marcadoresPlanearRuta.get(0).getPosition().latitude), Double.toString(marcadoresPlanearRuta.get(0).getPosition().longitude)).execute();
         }
     }
-
 
     public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
 
@@ -719,17 +696,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
     public class tareaAsyncBuscarRutaParada extends AsyncTask<Void, Void, Void> {
 
-
-
         public tareaAsyncBuscarRutaParada(String idParada, String idRoute) {
-
         }
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
-
         @Override
         protected Void doInBackground(Void... voids) {
             try{
@@ -749,12 +721,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             return null;
         }
-
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
           //  pg.dismiss();
         }
     }
-
 }
 
