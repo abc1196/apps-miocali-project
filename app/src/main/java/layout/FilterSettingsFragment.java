@@ -33,7 +33,7 @@ public class FilterSettingsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private CrystalSeekbar seekbar;
-    private TextView txtDistancia, tvMin, tvMax;
+    private TextView txtDistanciaPuntos, tvMin, tvMax;
     protected View rootView;
 
     private OnFragmentInteractionListener mListener;
@@ -81,19 +81,6 @@ public class FilterSettingsFragment extends Fragment {
                 parent.removeView(rootView);
         }
 
-        try {
-            rootView = inflater.inflate(R.layout.fragment_filter_settings, container, false);
-            seekbar=(CrystalSeekbar)rootView.findViewById(R.id.rangeSeekbar4);
-            txtDistancia=(TextView)rootView.findViewById(R.id.txtDistancia);
-            seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
-                @Override
-                public void valueChanged(Number minValue) {
-                    txtDistancia.setText(String.valueOf(minValue)+ "m");
-                }
-            });
-        } catch (InflateException e) {
-            e.printStackTrace();
-        }
 
         return rootView;
     }
