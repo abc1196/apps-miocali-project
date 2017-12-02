@@ -1,0 +1,242 @@
+package com.example.apps_miocali_project.control;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.example.apps_miocali_project.R;
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Gap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import Modelo.Destino;
+import Modelo.Viaje;
+
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+/**
+ * Created by Juan K on 29/11/2017.
+ */
+
+public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallback {
+    SupportMapFragment mapFragment;
+    FloatingActionButton fabParadas, fabRecargas, fabWifi;
+    boolean paradas, recargas, wifi;
+    private Viaje viaje;
+    private GoogleMap map;
+
+
+    private ArrayList<Marker> listParadas;
+    private ArrayList<Marker> listRecargas;
+    private ArrayList<Marker> listWifi;
+
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
+    private Location ultimaLocacion;
+    private ArrayList<Marker> marcadoresPlanearRuta;
+
+
+    private final static String KEY_LOCATION_LATITUD = "location latitud";
+    private final static String KEY_LOCATION_LONGITUD = "location longitud";
+    private boolean permisoPosicion;
+    private boolean ubicacionActivada;
+
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
+    private static final float DEFAULT_ZOOM = 13;
+    private static final double DEFAULT_LATITUD = 3.448972;
+    private static final double DEFAULT_LONGITUD = -76.556218;
+
+    private double distanciaFiltro;
+    private String x1,x2,y1,y2;
+    private ConexionHTTPTReal darBusesTiempoReal;
+
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_pviaje);
+        Intent intent = getIntent();
+        viaje = (Viaje) intent.getSerializableExtra("viaje");
+        x1 = intent.getStringExtra("x1");
+        x2 = intent.getStringExtra("x2");
+        y1 = intent.getStringExtra("y1");
+        y2 = intent.getStringExtra("y2");
+        ubicacionActivada = true;
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapViaje);
+        mapFragment.getMapAsync(this);
+        fabParadas = (FloatingActionButton) findViewById(R.id.accion_paradas);
+        paradas = false;
+        listParadas = new ArrayList<Marker>();
+        fabRecargas = (FloatingActionButton) findViewById(R.id.accion_recargas);
+        recargas = false;
+        listRecargas = new ArrayList<Marker>();
+        fabWifi = (FloatingActionButton) findViewById(R.id.accion_wifi);
+        wifi = false;
+        listWifi = new ArrayList<Marker>();
+        marcadoresPlanearRuta= new ArrayList<Marker>();
+
+        distanciaFiltro = 500;
+
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
+        String longitud = sharedPref.getString(KEY_LOCATION_LONGITUD, "0");
+        if (latitud.equals("0")) {
+            Log.d("1", "No hay shared");
+        } else {
+            Log.d("1", "Hay Shared");
+            double sharedLatitud = Double.parseDouble(latitud);
+            double sharedLongitud = Double.parseDouble(longitud);
+            ultimaLocacion = new Location("");
+            ultimaLocacion.setLatitude(sharedLatitud);
+            ultimaLocacion.setLongitude(sharedLongitud);
+        }
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                ultimaLocacion = location;
+                Log.d("loc", "El loc mananager cambio a " + location.getLatitude() + " " + location.getLongitude());
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(KEY_LOCATION_LATITUD, "" + ultimaLocacion.getLatitude());
+                editor.putString(KEY_LOCATION_LONGITUD, "" + ultimaLocacion.getLongitude());
+                editor.commit();
+                Log.d("1", "Guardó en shared por movimiento");
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+    }
+
+    public Activity getActivity() {
+        return this;
+    }
+
+    @SuppressLint("NewApi")
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(Double.parseDouble(y1),Double.parseDouble(x1)), DEFAULT_ZOOM));
+        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+        planearViaje(x1,y1,x2,y2);
+    }
+
+    public void planearViaje(String x1, String y1, String x2, String y2){
+        for (int i = 0;i<viaje.getDestinos().size();i++){
+            Destino dest = viaje.getDestinos().get(i);
+            if(i==0){
+                MarkerOptions marker_onclick = new MarkerOptions()
+                        .anchor(0.5f, 0.5f) // Anchors the marker on the center
+                        .title(dest.getNombreDestino())
+                        .snippet("Hora de salida: " + viaje.getHoraSalida())
+                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.placeholder64));
+                Marker marker = map.addMarker(marker_onclick);
+                marcadoresPlanearRuta.add(marker);
+            }else if(i == viaje.getDestinos().size()-1){
+                MarkerOptions marker_onclick = new MarkerOptions()
+                        .anchor(0.5f, 0.5f) // Anchors the marker on the center
+                        .title(dest.getNombreDestino())
+                        .snippet("Hora de llegada: " + viaje.getHoraLlegada())
+                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.flag));
+                Marker marker = map.addMarker(marker_onclick);
+                marcadoresPlanearRuta.add(marker);
+            }else if(i>0 && i < viaje.getDestinos().size()){
+                if((i+1)<viaje.getDestinos().size()) {
+                    if(!viaje.getDestinos().get(i).getIdentBus().equals(viaje.getDestinos().get(i+1).getIdentBus())) {
+                        MarkerOptions marker_onclick = new MarkerOptions()
+                                .anchor(0.5f, 0.5f) // Anchors the marker on the center
+                                .title(dest.getNombreDestino())
+                                .snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
+                                .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
+
+                        Marker marker = map.addMarker(marker_onclick);
+                        marcadoresPlanearRuta.add(marker);
+                    }
+                }
+            }
+            if((i+1)<viaje.getDestinos().size()){
+                if(dest.getIdentBus().charAt(0) == 'A'){
+                    Polyline line = map.addPolyline(new PolylineOptions()
+                            .add(new LatLng(viaje.getDestinos().get(i).getLatitudDestino(),viaje.getDestinos().get(i).getLongitudDestino()), new LatLng(viaje.getDestinos().get(i+1).getLatitudDestino(),viaje.getDestinos().get(i+1).getLongitudDestino()))
+                            .width(10)
+                            .color(getResources().getColor(R.color.colorAccent)));
+                }else if(dest.getIdentBus().charAt(0) == 'P'){
+                    Polyline line = map.addPolyline(new PolylineOptions()
+                            .add(new LatLng(viaje.getDestinos().get(i).getLatitudDestino(),viaje.getDestinos().get(i).getLongitudDestino()), new LatLng(viaje.getDestinos().get(i+1).getLatitudDestino(),viaje.getDestinos().get(i+1).getLongitudDestino()))
+                            .width(10)
+                            .color(Color.BLUE));
+                }else if(dest.getIdentBus().charAt(0) == 'E'){
+                    Polyline line = map.addPolyline(new PolylineOptions()
+                            .add(new LatLng(viaje.getDestinos().get(i).getLatitudDestino(),viaje.getDestinos().get(i).getLongitudDestino()), new LatLng(viaje.getDestinos().get(i+1).getLatitudDestino(),viaje.getDestinos().get(i+1).getLongitudDestino()))
+                            .width(10)
+                            .color(Color.rgb(218, 214, 0)));
+                }else if(dest.getIdentBus().charAt(0) == 'T'){
+                    Polyline line = map.addPolyline(new PolylineOptions()
+                            .add(new LatLng(viaje.getDestinos().get(i).getLatitudDestino(),viaje.getDestinos().get(i).getLongitudDestino()), new LatLng(viaje.getDestinos().get(i+1).getLatitudDestino(),viaje.getDestinos().get(i+1).getLongitudDestino()))
+                            .width(10)
+                            .color(Color.rgb(216, 35, 42)));
+                }else{
+                    //Defining a Dash of lengt 50 pixels
+                    Dash myDASH = new Dash(15);
+                    Gap myGAP = new Gap(8);
+                    List<PatternItem> PATTERN_DASHED = Arrays.asList(myDASH,myGAP);
+                    Polyline line = map.addPolyline(new PolylineOptions()
+                            .add(new LatLng(viaje.getDestinos().get(i).getLatitudDestino(),viaje.getDestinos().get(i).getLongitudDestino()), new LatLng(viaje.getDestinos().get(i+1).getLatitudDestino(),viaje.getDestinos().get(i+1).getLongitudDestino()))
+                            .width(10)
+                            .color(Color.rgb(158, 158, 158)));
+                    line.setPattern(PATTERN_DASHED);
+                }
+
+            }
+        }
+    }
+
+
+}

@@ -1,10 +1,12 @@
 package Modelo;
 
+import java.io.Serializable;
+
 /**
  * Created by Juan K on 15/11/2017.
  */
 
-public class PuntoMapa {
+public class PuntoMapa implements Serializable {
     private String nombre;
     private Double latitud;
     private Double longitud;

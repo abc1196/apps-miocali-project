@@ -1,10 +1,12 @@
 package Modelo;
 
+import java.io.Serializable;
+
 /**
  * Created by Juan K on 13/11/2017.
  */
 
-public class Destino {
+public class Destino implements Serializable {
 
     private double longitudDestino;
     private double latitudDestino;

@@ -1,12 +1,13 @@
 package Modelo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by Juan K on 13/11/2017.
  */
 
-public class SistemaMio {
+public class SistemaMio implements Serializable {
 
     private ArrayList<Ruta> rutas;
 

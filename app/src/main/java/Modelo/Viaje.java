@@ -1,12 +1,13 @@
 package Modelo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by Juan K on 13/11/2017.
  */
 
-public class Viaje {
+public class Viaje implements Serializable {
 
     private double longitudOrigen;
     private double latitudOrigen;

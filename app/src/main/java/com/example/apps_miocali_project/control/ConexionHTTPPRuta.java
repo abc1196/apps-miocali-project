@@ -1,11 +1,15 @@
 package com.example.apps_miocali_project.control;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 
@@ -28,7 +32,7 @@ private HttpURLConnection urlConnection;
         this.x2 = x2;
         this.y1 = y1;
         this.y2 = y2;
-        ruta ="http://tuyo.herokuapp.com/request-route?x1=-76.537264" + this.x1 + "&y1=" + this.y1+ "&x2=" + this.x2 + "&y2=" + this.y2 + "&mode=lessBuses";
+        ruta ="http://tuyo.herokuapp.com/request-route?x1=" + this.x1 + "&y1=" + this.y1+ "&x2=" + this.x2 + "&y2=" + this.y2 + "&mode=lessBuses";
     }
 
     public String getRespuesta() {
