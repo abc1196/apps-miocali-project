@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_view"
+    android:layout_width="120dp"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="6dp"
+    android:layout_marginRight="6dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    card_view:cardCornerRadius="4dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="vertical"
+        android:weightSum="4">
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:padding="16dp"
+            android:textSize="16dp"
+            android:textColor="@android:color/white"
+            android:text="hola"
+            android:textStyle="bold"/>
+          <Button android:layout_below="@+id/titleTextView"
+              android:id="@+id/btnViewRoute"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:text="@string/btnVerRutas"/>
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

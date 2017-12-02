@@ -96,7 +96,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
         fabUbicacion=(android.support.design.widget.FloatingActionButton)findViewById(R.id.fabUbicacion);
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
@@ -170,31 +169,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(Marker marker) {
                 if(mapParadas.containsKey(marker)){
-                    Log.d("ALEJOTAG",marker.getTitle());
+                    Log.d("ALEJOTAG","MARCADOR:" + marker.getTitle());
                     idParada=mapParadas.get(marker);
-                    Log.d("idParada===",idParada);
-                    String nombreParada=idParada.toString();
                     Intent intent=new Intent(getActivity(), ParadaActivity.class);
                     intent.putExtra("parada",idParada);
+                    intent.putExtra("nombreParada",marker.getTitle());
                     startActivity(intent);
 
                 }
                 return false;
             }
         });
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                if(paradasLayout.getVisibility() == View.VISIBLE) {
-                    paradasLayout.setVisibility(View.GONE);
-                }
-            }
-        });
     }
 
     public void puntosParadas(View v) {
         if(permisoPosicion){
+            Log.d("ALEJOTAG", "VIENDO PARADAS");
         pintarPuntosParadas();}
+        else{
+            Log.d("ALEJOTAG","NO VIENDO PARADAS");
+        }
     }
 
 

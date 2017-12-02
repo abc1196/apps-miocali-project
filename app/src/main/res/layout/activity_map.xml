@@ -118,7 +118,7 @@
                 android:src="@drawable/ic_gps_fixed_black_24dp"
                 android:tint="@android:color/white"
                 android:onClick="darUbicacionActual"
-                android:layout_marginBottom="16dp"/>
+                android:layout_margin="16dp"/>
         </android.support.design.widget.CoordinatorLayout>
 
 
