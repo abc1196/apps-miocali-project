@@ -35,6 +35,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -49,27 +51,42 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private ProgressDialog pg;
 
+    public SharedPreferences sharedPref;
     android.support.design.widget.FloatingActionButton fabUbicacion;
     SupportMapFragment mapFragment;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
-    private Ubicacion ubicacion;
-    private double distanciaFiltro;
-
-    private ArrayList<Marker> listParadas;
     private double distanciaFiltro;
     private float distanciaRutas;
     private HashMap<Marker, String> mapParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
 
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
+    private Location ultimaLocacion;
+
+
+    private final static String KEY_LOCATION_LATITUD = "location latitud";
+    private final static String KEY_LOCATION_LONGITUD = "location longitud";
+    private boolean permisoPosicion;
+    private boolean ubicacionActivada;
+
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
+    private static final float DEFAULT_ZOOM = 12;
+    private static final double DEFAULT_LATITUD = 3.4375964;
+    private static final double DEFAULT_LONGITUD = -76.5166973;
     private ConexionHTTPTReal darBusesTiempoReal;
     private RelativeLayout paradasLayout;
     private String idParada;
     private TextView txtRutaNombre;
+
+    private Marker puntoUsuario;
+    private boolean modoManual;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -79,11 +96,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         txtRutaNombre=(TextView)findViewById(R.id.txtRutaNombre);
         distanciaRutas=500;
         distanciaFiltro=500;
+        db= new DataBase(this);
         ubicacionActivada = true;
-        db = new DataBase(this);
-
-        ubicacion = new Ubicacion(this);
-
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -98,6 +112,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         fabWifi=(FloatingActionButton) findViewById(R.id.accion_wifi);
         wifi=false;
         listWifi= new ArrayList<Marker>();
+
+        modoManual = false;
     }
 
     public Activity getActivity() {
@@ -107,8 +123,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        ubicacion.centrarMapaInicial(map);
-        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -129,12 +144,92 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
+        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
 
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                if(!modoManual) {
+                    Toast.makeText(getApplicationContext(), "Pasando a modo manual",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                ultimaLocacion.setLatitude(marker.getPosition().latitude);
+                ultimaLocacion.setLongitude(marker.getPosition().longitude);
+                guardarShared();
+                puntoUsuario.setPosition(marker.getPosition());
+                modoManual = true;
+                if(paradas){
+                    pintarPuntosParadas();
+                }
+                if(wifi){
+                    pintarPuntosWifi();
+                }
+                if(recargas){
+                    pintarPuntosRecarga();
+                }
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+            }
+
+        });
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if(!modoManual) {
+                    ultimaLocacion = location;
+                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                    puntoUsuario.setVisible(true);
+                    Log.d("tag","posicion automatica cambio a "+ultimaLocacion.getLatitude() + ultimaLocacion.getLongitude());
+                    guardarShared();
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        MarkerOptions puntoUsuarioOptions = new MarkerOptions()
+                .anchor(0.0f, 0.0f) // Anchors the marker on the bottom left
+                .position(new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD)).draggable(true);
+
+        puntoUsuario = map.addMarker(puntoUsuarioOptions);
+        puntoUsuario.setVisible(false);
+        if(cargarShared()){
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), DEFAULT_ZOOM));
+            requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+            puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+            puntoUsuario.setVisible(true);
+        }else{
+            actualizarLocalizaciónActual();
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
+            requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+        }
     }
 
     public void puntosParadas(View v) {
-        if(ubicacion.darPermisoPosicion()){
-        pintarPuntosParadas();}
+        if(permisoPosicion){
+            pintarPuntosParadas();}
     }
 
 
@@ -156,7 +251,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             for (int i = 0; i < db.getMundo().getParadasDelSistema().size(); i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
-                if (ubicacion.inRange(lat, lng, distanciaFiltro)) {
+                if (inRange(lat, lng, distanciaFiltro)) {
                     String id=db.getMundo().getParadasDelSistema().get(i).getId();
                     String nombre=db.getMundo().getParadasDelSistema().get(i).getNombre();
                     MarkerOptions marker_onclick = new MarkerOptions()
@@ -191,8 +286,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     public void puntosRecarga(View v) {
-        if(ubicacion.darPermisoPosicion()){
-        pintarPuntosRecarga();}
+        if(permisoPosicion){
+            pintarPuntosRecarga();}
     }
 
     public void pintarPuntosRecarga() {
@@ -202,7 +297,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             for (int i = 0; i < db.getMundo().getPuntosRecarga().size(); i++) {
                 Double lat = db.getMundo().getPuntosRecarga().get(i).getLatitud();
                 Double lng = db.getMundo().getPuntosRecarga().get(i).getLongitud();
-                if (ubicacion.inRange(lat, lng, distanciaFiltro)) {
+                if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                             .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_recargas));
@@ -226,7 +321,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     public void puntosWifi(View v) {
-        if(ubicacion.darPermisoPosicion()) {
+        if(permisoPosicion) {
             pintarPuntosWifi();
         }
     }
@@ -237,9 +332,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             for (int i = 0; i < db.getMundo().getEstacionesWifi().size(); i++) {
                 Double lat = db.getMundo().getEstacionesWifi().get(i).getLatitud();
                 Double lng = db.getMundo().getEstacionesWifi().get(i).getLongitud();
-                if (ubicacion.inRange(lat, lng, distanciaFiltro)) {
+                if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
-                            .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                            .anchor(0.0f, 0.0f) // Anchors the marker on the bottom left
                             .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_wifi));
                     Marker marker = map.addMarker(marker_onclick);
                     listWifi.add(marker);
@@ -257,6 +352,162 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
             wifi = false;
         }
+    }
+
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        permisoPosicion = false;
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    permisoPosicion = true;
+                }
+            }
+        }
+        updateLocationUI();
+
+    }
+
+    private void updateLocationUI() {
+        if (map == null) {
+            return;
+        }
+        try {
+            if (permisoPosicion) {
+                Log.d("1", "Tomó actual");
+                map.getUiSettings().setMyLocationButtonEnabled(true);
+                locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
+                if (ultimaLocacion != null) {
+                    puntoUsuario.setVisible(true);
+                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                    guardarShared();
+                    Log.d("1", "Guardó en shared por tomar ubicación");
+                } else {
+                    Criteria criteria = new Criteria();
+                    criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+                    String provider = locationManager.getBestProvider(criteria, false);
+                    ultimaLocacion = locationManager.getLastKnownLocation(provider);
+                    if(ultimaLocacion==null){
+                        if(cargarShared()){
+                            puntoUsuario.setVisible(true);
+                            puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                            Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                                    Toast.LENGTH_LONG).show();
+                        }else {
+                            ultimaLocacion = new Location("");
+                            ultimaLocacion.setLatitude(DEFAULT_LATITUD);
+                            ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
+                            puntoUsuario.setVisible(true);
+                            puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                            Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    ubicacionActivada =false;
+
+                }
+            } else {
+                map.setMyLocationEnabled(false);
+                map.getUiSettings().setMyLocationButtonEnabled(false);
+                ultimaLocacion = null;
+            }
+        } catch (SecurityException e) {
+            Log.e("Exception: %s", e.getMessage());
+        }
+    }
+
+    public boolean inRange(double latitudPunto, double longitudPunto, double rango) {
+        boolean out = false;
+
+        rango = rango / 1000;
+
+        double x = ultimaLocacion.getLatitude() - latitudPunto;
+        double y = ultimaLocacion.getLongitude() - longitudPunto;
+
+        double valor1 = (rango) / (111.319);
+
+        double valor2 = Math.sqrt((x * x) + (y * y));
+
+        if (valor2 < valor1) {
+            out = true;
+        }
+        return out;
+    }
+
+    public void actualizarLocalizaciónActual() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+            return;
+        }
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        String provider = locationManager.getBestProvider(criteria, false);
+        ultimaLocacion = locationManager.getLastKnownLocation(provider);
+        if(ultimaLocacion==null){
+            if(cargarShared()){
+                puntoUsuario.setVisible(true);
+                puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                        Toast.LENGTH_LONG).show();
+            }else {
+                ultimaLocacion = new Location("");
+                ultimaLocacion.setLatitude(DEFAULT_LATITUD);
+                ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
+                puntoUsuario.setVisible(true);
+                puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                        Toast.LENGTH_LONG).show();
+            }
+        }else{
+            puntoUsuario.setVisible(true);
+            puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+        }
+    }
+    public void darUbicacionActual(View v) {
+        if(modoManual){
+            Toast.makeText(getApplicationContext(), "Pasando a modo automático",
+                    Toast.LENGTH_LONG).show();
+        }
+        modoManual = false;
+        actualizarLocalizaciónActual();
+        //if(ultimaLocacion==null){
+          //  actualizarLocalizaciónActual();
+        //}else {
+          //  actualizarLocalizaciónActual();
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+        new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
+            //updateLocationUI();
+            //if(ultimaLocacion.getLatitude()==DEFAULT_LATITUD && ultimaLocacion.getLongitude()==DEFAULT_LONGITUD){
+             //   actualizarLocalizaciónActual();
+            //}
+        //}
+    }
+    public boolean cargarShared(){
+        boolean loaded = false;
+        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
+        String longitud = sharedPref.getString(KEY_LOCATION_LONGITUD, "0");
+        if (latitud.equals("0")) {
+            loaded = false;
+        } else {
+            loaded=true;
+            double sharedLatitud = Double.parseDouble(latitud);
+            double sharedLongitud = Double.parseDouble(longitud);
+            ultimaLocacion = new Location("");
+            ultimaLocacion.setLatitude(sharedLatitud);
+            ultimaLocacion.setLongitude(sharedLongitud);
+        }
+        return loaded;
+    }
+    public void guardarShared(){
+        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(KEY_LOCATION_LATITUD, "" + ultimaLocacion.getLatitude());
+        editor.putString(KEY_LOCATION_LONGITUD, "" + ultimaLocacion.getLongitude());
+        editor.commit();
     }
 
     public void activarMenuFiltro(View v){
@@ -314,11 +565,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-    public void darUbicacionActual(View v) {
-        ubicacion.actualizarLocalizaciónActual();
-        }
-}
     public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
 
         private ProgressDialog pg;
@@ -387,4 +633,3 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 }
-
