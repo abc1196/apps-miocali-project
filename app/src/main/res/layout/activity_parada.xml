@@ -28,85 +28,99 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-
-
     <RelativeLayout android:id="@+id/layoutInfo"
         android:layout_below="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary">
-        <TextView
+
+        <TextView android:id="@+id/txtParada"
             android:text="Parada"
             android:drawableLeft="@drawable/rsz_ic_paradas"
             android:textColor="@android:color/white"
             android:layout_margin="16dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/textview"
             android:textSize="32dp"
-            android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="true"
             tools:layout_editor_absoluteY="0dp"
             tools:layout_editor_absoluteX="0dp" />
-    </RelativeLayout>
 
-
-<ScrollView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"></ScrollView>
-    <RelativeLayout android:id="@+id/layoutInfoDos"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/layoutInfo"
-        android:background="@color/cardview_light_background"
-        android:layout_margin="8dp">
-        <TextView android:id="@+id/txtInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/rutas_parada"
-            android:textSize="16dp"
-            android:layout_margin="8dp"/>
-        <android.support.v7.widget.RecyclerView
-            android:layout_below="@+id/txtInfo"
-            android:id="@+id/cardView"
+        <RelativeLayout android:id="@+id/layoutInfoDos"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtParada"
+            android:background="@color/cardview_light_background"
+            android:layout_marginTop="6dp">
+            <TextView android:id="@+id/txtInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rutas_parada"
+                android:textSize="16dp"
+                android:layout_margin="8dp"/>
+            <android.support.v7.widget.RecyclerView
+                android:layout_below="@+id/txtInfo"
+                android:id="@+id/cardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
+        </RelativeLayout>
     </RelativeLayout>
 
-    <RelativeLayout android:id="@+id/layoutInfoTres"
-        android:layout_below="@+id/layoutInfoDos"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:layout_margin="8dp">
-        <TextView android:id="@+id/txtInfoDos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/rutas_cercana"
-            android:textSize="16dp"
-            android:layout_margin="8dp"/>
-        <Switch
-            android:id="@+id/toggleButton1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_toRightOf="@+id/txtInfoDos"
-            android:textOff="Off"
-            android:textOn="On" />
-        <TextView
-            android:layout_below="@+id/txtInfoDos"
+
+
+        <RelativeLayout android:id="@+id/layoutInfoTres"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/info_buses"
-            android:gravity="center"
-            />
-        <WebView  xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/webView"
-            android:layout_below="@+id/txtInfoDos"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
+            android:layout_below="@+id/layoutInfo"
+            android:background="@android:color/white"
+            android:layout_margin="8dp">
+            <TextView android:id="@+id/txtInfoDos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rutas_cercana"
+                android:textSize="16dp"
+                android:layout_margin="8dp"/>
+            <Switch
+                android:id="@+id/toggleButton1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_toRightOf="@+id/txtInfoDos"
+                android:textOff="Off"
+                android:textOn="On" />
+            <TextView android:id="@+id/txtWeb"
+                android:layout_below="@+id/txtInfoDos"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/info_buses"
+                android:gravity="center"
+                />
+            <ScrollView android:layout_below="@+id/toggleButton1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/txtError"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/cargando_buses"
+                    android:visibility="gone"
+                    android:gravity="center"
+                    />
+                <android.support.v7.widget.RecyclerView android:id="@+id/card_view_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"></android.support.v7.widget.RecyclerView>
+
+            </RelativeLayout>
+            </ScrollView>
+        </RelativeLayout>
 
 
-    </RelativeLayout>
+
+
 </RelativeLayout>

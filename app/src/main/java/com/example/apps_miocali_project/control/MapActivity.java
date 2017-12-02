@@ -20,9 +20,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,13 +35,21 @@ import android.widget.Toast;
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.example.apps_miocali_project.R;
-import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -44,32 +57,40 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import Modelo.Bus;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener  {
     private ProgressDialog pg;
 
     android.support.design.widget.FloatingActionButton fabUbicacion;
     SupportMapFragment mapFragment;
+    FloatingActionMenu fabMenu;
     FloatingActionButton fabParadas, fabRecargas, fabWifi;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
-    private double distanciaFiltro;
     private float distanciaRutas;
     private HashMap<Marker, String> mapParadas;
-    private ArrayList<Marker> listRecargas;
+    private PlaceAutocompleteFragment autocompleteFragment;
+    private HashMap<Marker, String> mapRecargas;
     private ArrayList<Marker> listWifi;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
 
     private Location ultimaLocacion;
+    private ArrayList<Marker> marcadoresPlanearRuta;
+    private Button btnBusquedaDestino;
 
 
     private final static String KEY_LOCATION_LATITUD = "location latitud";
     private final static String KEY_LOCATION_LONGITUD = "location longitud";
+    private final static String PARADAS_ACTIVAS="PARADAS";
+    private final static String RECARGAS_ACTIVAS="RECARGAS";
+    private final static String WIFI_ACTIVAS="WIFI";
     private boolean permisoPosicion;
     private boolean ubicacionActivada;
 
@@ -78,34 +99,101 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final float DEFAULT_ZOOM = 13;
     private static final double DEFAULT_LATITUD = 3.448972;
     private static final double DEFAULT_LONGITUD = -76.556218;
+    private Toolbar mToolbar;
+
+    private double distanciaFiltro;
     private ConexionHTTPTReal darBusesTiempoReal;
-    private RelativeLayout paradasLayout;
+    private RelativeLayout paradasLayout, destinoLayout;
     private String idParada;
-    private TextView txtRutaNombre;
+    private String nomParada;
+    private TextView txtParadaNombre, txtDestinoNombre, txtDestinoDireccion;
+    private Button btnParada, btnFav;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         idParada="";
-        txtRutaNombre=(TextView)findViewById(R.id.txtRutaNombre);
+        nomParada="";
+        txtParadaNombre=(TextView)findViewById(R.id.txtParadaNombre);
+        btnParada=(Button)findViewById(R.id.btnParada);
+        btnFav=(Button)findViewById(R.id.btnFav);
         distanciaRutas=500;
         distanciaFiltro=500;
         db= new DataBase(this);
         ubicacionActivada = true;
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        fabMenu=(FloatingActionMenu)findViewById(R.id.menu_fab);
+        fabMenu.setIconAnimated(false);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        destinoLayout=(RelativeLayout)findViewById(R.id.destinoLayout);
+        txtDestinoNombre=(TextView)findViewById(R.id.txtDestinoNombre);
+        txtDestinoDireccion=(TextView)findViewById(R.id.txtDestinoDireccion);
+        paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
         fabUbicacion=(android.support.design.widget.FloatingActionButton)findViewById(R.id.fabUbicacion);
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
         mapParadas= new HashMap<Marker, String>();
         fabRecargas=(FloatingActionButton) findViewById(R.id.accion_recargas);
         recargas=false;
-        listRecargas= new ArrayList<Marker>();
+        mapRecargas= new HashMap<Marker, String>();
         fabWifi=(FloatingActionButton) findViewById(R.id.accion_wifi);
         wifi=false;
         listWifi= new ArrayList<Marker>();
+
+        marcadoresPlanearRuta= new ArrayList<Marker>();
+
+        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(Place.TYPE_COUNTRY)
+                .setCountry("CO")
+                .build();
+        autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setFilter(autocompleteFilter);
+        autocompleteFragment.setHint("Busca tu destino!");
+        autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(3.336139, -76.671709),new LatLng(3.519145, -76.447176)));
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                if(marcadoresPlanearRuta.isEmpty()) {
+                    LatLng p = place.getLatLng();
+                    Marker marker = map.addMarker(new MarkerOptions().position(p).title(place.getName().toString()).snippet(place.getAddress().toString()));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(p,16 ));
+                    marcadoresPlanearRuta.add(marker);
+                    txtDestinoNombre.setText(place.getName().toString());
+                    txtDestinoDireccion.setText(place.getAddress().toString());
+                    destinoLayout.setVisibility(View.VISIBLE);
+                    Log.i("PLACETAG", "Place: " + place.getName());
+                }else{
+                    Toast.makeText(getApplicationContext(),"Solo puedes seleccionar un destino",Toast.LENGTH_SHORT);
+                }
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i("PLACETAG", "An error occurred: " + status);
+            }
+        });
+
+        autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(marcadoresPlanearRuta.size()>0){
+                    Marker marker=marcadoresPlanearRuta.get(0);
+                    marker.remove();
+                    destinoLayout.setVisibility(View.GONE);
+                    txtDestinoNombre.setText("");
+                    txtDestinoDireccion.setText("");
+                    autocompleteFragment.setText("");
+                    marcadoresPlanearRuta.clear();
+                }
+            }
+        });
+
 
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
@@ -151,8 +239,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
         };
-
-
+        boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
+        boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
+        boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
+        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
     }
 
     public Activity getActivity() {
@@ -160,7 +255,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.filtro:
+                activarMenuFiltro();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
+        googleMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                        this, R.raw.style_json));
         map = googleMap;
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
@@ -169,31 +286,74 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(Marker marker) {
                 if(mapParadas.containsKey(marker)){
-                    Log.d("ALEJOTAG","MARCADOR:" + marker.getTitle());
+                    Log.d("ALEJOTAG",marker.getTitle());
                     idParada=mapParadas.get(marker);
-                    Intent intent=new Intent(getActivity(), ParadaActivity.class);
-                    intent.putExtra("parada",idParada);
-                    intent.putExtra("nombreParada",marker.getTitle());
-                    startActivity(intent);
-
+                    nomParada=marker.getTitle();
+                    txtParadaNombre.setText(marker.getTitle());
+                    if(btnParada.getVisibility()==View.GONE){
+                        btnParada.setVisibility(View.VISIBLE);
+                    }
+                    if(btnFav.getVisibility()==View.GONE){
+                        btnFav.setVisibility(View.VISIBLE);
+                    }
+                    paradasLayout.setVisibility(View.VISIBLE);
+                } else if(mapRecargas.containsKey(marker)){
+                    txtParadaNombre.setText(marker.getTitle());
+                    if(btnParada.getVisibility()==View.VISIBLE){
+                        btnParada.setVisibility(View.GONE);
+                    }
+                    if(btnFav.getVisibility()==View.VISIBLE){
+                        btnFav.setVisibility(View.GONE);
+                    }
+                    paradasLayout.setVisibility(View.VISIBLE);
                 }
                 return false;
             }
         });
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(paradasLayout.getVisibility() == View.VISIBLE) {
+                    paradasLayout.setVisibility(View.GONE);
+                    txtParadaNombre.setText("");
+
+                }
+            }
+        });
+    }
+
+    public void agregarAWidget(View view) {
+
+    //TODO
+
     }
 
     public void puntosParadas(View v) {
-        if(permisoPosicion){
-            Log.d("ALEJOTAG", "VIENDO PARADAS");
-        pintarPuntosParadas();}
-        else{
-            Log.d("ALEJOTAG","NO VIENDO PARADAS");
+        if(permisoPosicion&&!paradas){
+        pintarPuntosParadas();
+            fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+            paradas = true;
+        }else{
+            borrarPuntosParada();
+            fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
+            paradas = false;
         }
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(PARADAS_ACTIVAS, paradas);
+
     }
 
 
+    public void mostrarParada(View v){
+
+        Intent intent= new Intent(getActivity(),ParadaActivity.class);
+        intent.putExtra("parada",idParada);
+        intent.putExtra("nombreParada",nomParada);
+        startActivity(intent);
+    }
+
     public void pintarPuntosParadas() {
-        if (!paradas) {
             db.cargarModeloParadas();
             for (int i = 0; i < db.getMundo().getParadasDelSistema().size(); i++) {
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
@@ -203,78 +363,85 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     String nombre=db.getMundo().getParadasDelSistema().get(i).getNombre();
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas)).title(nombre);
+                            .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
                     Marker marker=map.addMarker(marker_onclick);
                     mapParadas.put(marker,id);
-                    // listParadas.add(marker);
                 }
             }
-            fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-            paradas = true;
 
-        }else{
+    }
 
-            for(Map.Entry<Marker,String> entry: mapParadas.entrySet()){
-                Marker marker= entry.getKey();
-                marker.remove();
-
-            }
-            mapParadas.clear();
-//            for (int i = 0; i<listParadas.size();i++) {
-//                Marker marker= listParadas.get(i);
-//                marker.remove();
-//            }
-//            listParadas.clear();
-            fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
-            paradas = false;
+    public void borrarPuntosParada(){
+        for(Map.Entry<Marker,String> entry: mapParadas.entrySet()){
+            Marker marker= entry.getKey();
+            marker.remove();
 
         }
+        mapParadas.clear();
     }
 
 
     public void puntosRecarga(View v) {
-        if(permisoPosicion){
-        pintarPuntosRecarga();}
+        if(permisoPosicion&&!recargas) {
+            pintarPuntosRecarga();
+            fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+            recargas = true;
+        }else{
+            borrarPuntosRecarga();
+            fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
+            recargas = false;
+        }
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(RECARGAS_ACTIVAS, recargas);
+
+
     }
 
     public void pintarPuntosRecarga() {
-
-        if (!recargas) {
             db.cargarModeloPuntosRecarga();
             for (int i = 0; i < db.getMundo().getPuntosRecarga().size(); i++) {
                 Double lat = db.getMundo().getPuntosRecarga().get(i).getLatitud();
                 Double lng = db.getMundo().getPuntosRecarga().get(i).getLongitud();
+                String nombre=db.getMundo().getPuntosRecarga().get(i).getNombre();
                 if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_recargas));
+                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_recargas)).title(nombre);
                     Marker marker = map.addMarker(marker_onclick);
-                    listRecargas.add(marker);
+                    mapRecargas.put(marker,nombre);
                 }
             }
-            fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-            recargas = true;
-        } else {
-            for (int i = 0; i < listRecargas.size(); i++) {
-                Marker marker = listRecargas.get(i);
-                marker.remove();
 
-            }
-            listRecargas.clear();
-            fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
-            recargas = false;
+    }
+
+    public void borrarPuntosRecarga(){
+        for(Map.Entry<Marker,String> entry: mapRecargas.entrySet()){
+            Marker marker= entry.getKey();
+            marker.remove();
+
         }
+        mapRecargas.clear();
     }
 
 
     public void puntosWifi(View v) {
-        if(permisoPosicion) {
+        if(permisoPosicion&&!wifi) {
             pintarPuntosWifi();
+            fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+            wifi = true;
+        }else{
+            borrarPuntosWifi();
+            fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
+            wifi = false;
         }
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(WIFI_ACTIVAS, wifi);
+
     }
 
     public void pintarPuntosWifi() {
-        if (!wifi) {
             db.cargarModeloPuntosWifi();
             for (int i = 0; i < db.getMundo().getEstacionesWifi().size(); i++) {
                 Double lat = db.getMundo().getEstacionesWifi().get(i).getLatitud();
@@ -287,18 +454,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     listWifi.add(marker);
                 }
             }
-            fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-            wifi = true;
-        } else {
-            for (int i = 0; i < listWifi.size(); i++) {
-                Marker marker = listWifi.get(i);
-                marker.remove();
 
-            }
-            listWifi.clear();
-            fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorDisabled), PorterDuff.Mode.MULTIPLY);
-            wifi = false;
+
+    }
+
+    public void borrarPuntosWifi(){
+        for (int i = 0; i < listWifi.size(); i++) {
+            Marker marker = listWifi.get(i);
+            marker.remove();
+
         }
+        listWifi.clear();
     }
 
     public void onRequestPermissionsResult(int requestCode,
@@ -372,6 +538,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return out;
     }
 
+
     public void actualizarLocalizaciónActual() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
@@ -388,6 +555,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
         }
     }
+
     public void darUbicacionActual(View v) {
         if(ultimaLocacion==null){
             ultimaLocacion = new Location("");
@@ -408,8 +576,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    public void activarMenuBuses(View v){
+        new tareaAsyncBuscarRutaParada(idParada,"P10A").execute();
+    }
 
-    public void activarMenuFiltro(View v){
+    public void activarMenuFiltro(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Ajustes de Filtro");
@@ -420,20 +591,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         final TextView txtDistancia= (TextView) view.findViewById(R.id.txtDistancia);
         final CrystalSeekbar seekbar=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar4);
         final CrystalSeekbar seekbar1=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar6);
-        seekbar.setMinStartValue((float) distanciaFiltro ).apply();
-        seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
-            @Override
-            public void valueChanged(Number value) {
-                distanciaFiltro=value.floatValue();
-                txtDistancia.setText(String.valueOf(value) + " m");
-            }
-        });
-        seekbar1.setMinStartValue(distanciaRutas).apply();
+        seekbar1.setMinValue(100).setMaxValue(1000);
+        Log.d("TAGDISTANCIA","DISTANCIA: "+(float)distanciaFiltro);
+        if(distanciaFiltro==100){seekbar1.setMinStartValue(0 ).apply();}else{
+        seekbar1.setMinStartValue((float) distanciaFiltro ).apply();}
+     Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
+                Log.d("TAGDISTANCIA","ACTIVITY: "+value.doubleValue());
+                distanciaFiltro=value.doubleValue();
+                txtDistanciaPuntos.setText(String.valueOf(value) + " m");
+            }
+        });
+        seekbar.setMinStartValue((float)distanciaRutas).apply();
+        seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
+            @Override
+            public void valueChanged(Number value) {
                 distanciaRutas=value.floatValue();
-                txtDistanciaPuntos.setText(String.valueOf(value) + "m");
+                txtDistancia.setText(String.valueOf(value) + "m");
             }
         });
 
@@ -443,12 +619,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(paradas){
+                            borrarPuntosParada();
                             pintarPuntosParadas();
                         }
                         if(wifi){
+                            borrarPuntosWifi();
                             pintarPuntosWifi();
                         }
                         if(recargas){
+                            borrarPuntosRecarga();
                             pintarPuntosRecarga();
                         }
                         dialog.cancel();
@@ -464,6 +643,38 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    @Override
+    public void onClick(View view) {
+
+    }
+    @Override
+    public void onPlaceSelected(Place place) {
+            LatLng sel = place.getLatLng();
+            double lat = sel.latitude;
+            double lng = sel.longitude;
+            String nom = place.getName().toString();
+            String dir = place.getAddress().toString();
+            Log.d("Lugares", lat+"");
+        Log.d("Lugares", lng+"");
+        Log.d("Lugares", nom+"");
+        Log.d("Lugares", dir+"");
+
+    }
+    @Override
+    public void onError(Status status) {
+
+    }
+
+    public void planearViaje(View v){
+        if(!marcadoresPlanearRuta.isEmpty()){
+            pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje",false, false);
+
+            new tareaAsyncPlanearViaje(pg,Double.toString(ultimaLocacion.getLatitude()),Double.toString(ultimaLocacion.getLongitude()), Double.toString(marcadoresPlanearRuta.get(0).getPosition().latitude), Double.toString(marcadoresPlanearRuta.get(0).getPosition().longitude)).execute();
+        }
+    }
+
+
     public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
 
         private ProgressDialog pg;
@@ -487,6 +698,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         protected Void doInBackground(Void... voids) {
             try{
                 db.planearRuta(x1,y1,x2,y2);
+
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -495,6 +707,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
+            Intent intent = new Intent(getApplicationContext(), PViajeActivity.class);
+            intent.putExtra("viaje", db.getMundo().getViaje() );
+            intent.putExtra("x1", x1);
+            intent.putExtra("x2", x2);
+            intent.putExtra("y1", y1);
+            intent.putExtra("y2", y2);
+            startActivity(intent);
             pg.dismiss();
         }
     }
@@ -517,7 +736,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 darBusesTiempoReal.start();
                 while (darBusesTiempoReal.isMantener()){
                     if(darBusesTiempoReal.isConsultaLista()){
-
+                    ArrayList<Bus> buses=darBusesTiempoReal.getBuses();
+                        Log.d("BUSESTAG","Consulta tiempo real");
+                        for(int i=0; i<buses.size(); i++){
+                            Log.d("BUSEST   AG","Bus: "+buses.get(i).getRouteId());
+                        }
+                        Log.d("BUSESTAG","After tiempo real");
                     }
                 }
             }catch (Exception e){
@@ -528,8 +752,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
-            pg.dismiss();
+          //  pg.dismiss();
         }
     }
+
 }
 

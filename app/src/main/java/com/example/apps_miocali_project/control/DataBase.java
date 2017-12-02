@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import Modelo.Destino;
@@ -33,7 +34,7 @@ import Modelo.SistemaMio;
 import Modelo.Viaje;
 
 
-public class DataBase extends SQLiteOpenHelper{
+public class DataBase extends SQLiteOpenHelper implements Serializable {
 
     private static String DB_PATH = "/data/data/com.example.apps_miocali_project/databases/";
     private static final String DATABASE_NAME = "basePuntosMapa.sqlite";

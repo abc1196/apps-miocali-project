@@ -5,12 +5,17 @@
     <string name="wifi">Zonas Wi-Fi</string>
     <string name="paradas">Paradas/Estaciones</string>
     <string name="title_activity_maps">Map</string>
-    <string name="filtro">Ajustes de filtro</string>
-    <string name="btnVerRutas">Ver ruta</string>
+    <string name="filtro">Ajustes de filtro...</string>
+    <string name="buscar_buses">Buscar buses</string>
+    <string name="btnVerRutas">Ver</string>
     <string name="rutas_parada">Buses</string>
     <string name="rutas_cercana">Buses cercanos</string>
     <string name="info_buses">Activa esta opción para ver el tiempo de llegada de los buses (Requiere conexión).</string>
+    <string name="error_buses">No hay buses cercanos. Intenta más tarde.</string>
+    <string name="cargando_buses">Cargando buses. Espera un momento.</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 </resources>

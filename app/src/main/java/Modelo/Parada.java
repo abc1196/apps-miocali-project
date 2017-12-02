@@ -1,10 +1,12 @@
 package Modelo;
 
+import java.io.Serializable;
+
 /**
  * Created by Juan K on 13/11/2017.
  */
 
-public class Parada {
+public class Parada implements Serializable {
 
     private String id;
     private String nombre;
