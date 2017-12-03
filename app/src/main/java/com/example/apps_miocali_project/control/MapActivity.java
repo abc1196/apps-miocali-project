@@ -22,6 +22,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -596,7 +597,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         builder.setMessage("Mira la posición de la ruta en tiempo real");
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_select_bus_real_time, null);
-        ArrayList<String> buses=db.getBuses();
+        final ArrayList<String> buses=db.getBuses();
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.select_dialog_item,buses);
         final AutoCompleteTextView actv = (AutoCompleteTextView) view.findViewById(R.id.autoCompleteText);
@@ -608,13 +609,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String bus=actv.getText().toString();
-                        Log.d("BUS=",bus);
-                        new tareaAsyncBuscarRutaParada(idParada,bus).execute();
+                        String bus = actv.getText().toString();
+                        if (buses.contains(bus)){
+                            Log.d("BUS=", bus);
+                        tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada("", bus);
+                        tr.execute();
+
+                            dialog.cancel();
                         //METODAZO PARA BUSCAR LA RUTA EN TIEMPO REAL DE SWAN
+                    }else{
+                            Toast toast=Toast.makeText(getActivity(),"Ingresa una ruta valida",Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER,0,0);
+                            toast.show();
+                        }
 
-
-                        dialog.cancel();
                     }
                 });
         builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
