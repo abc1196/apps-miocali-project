@@ -67,7 +67,7 @@
                     fab:fab_size="mini"
                     app:fab_label="@string/buscar_buses"
                     android:src="@drawable/rsz_ic_bus"
-                    android:onClick="activarMenuBuses"/>
+                    android:onClick="activarBusquedaRutaTiempoReal"/>
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/accion_paradas"
@@ -79,13 +79,13 @@
                     fab:fab_size="mini"
                     app:fab_label="@string/paradas"
                     android:src="@drawable/rsz_ic_paradas_menu"
-                    android:tint="@android:color/white"
                     android:onClick="puntosParadas"/>
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/accion_recargas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:backgroundTint="@android:color/transparent"
                     app:fab_colorNormal="@color/colorDisabled"
                     fab:fab_colorPressed="@color/colorAccent"
                     fab:fab_colorRipple="@color/colorAccent"
@@ -164,43 +164,48 @@
                 />
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/destinoLayout"
-            android:layout_width="match_parent"
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/destinoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="bottom"
+        android:background="@android:color/white"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/txtDestinoNombre"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
-            android:background="@android:color/white"
-            android:visibility="gone">
+            android:layout_marginTop="6dp"
+            android:layout_marginLeft="6dp"
 
-            <TextView
-                android:id="@+id/txtDestinoNombre"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:textSize="14dp"
-                android:textStyle="bold" />
+            android:textSize="14dp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/txtDestinoDireccion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/txtDestinoNombre"
-                android:layout_margin="4dp" />
+        <TextView
+            android:id="@+id/txtDestinoDireccion"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtDestinoNombre"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="6dp"
+            />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_margin="4dp"
-                android:background="@color/colorAccent"
-                android:drawableLeft="@drawable/rsz_ic_paradas_slide"
-                android:drawableTint="@android:color/white"
-                android:onClick="planearViaje"
-                android:text="Detalles"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white" />
-        </RelativeLayout>
-
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"
+            android:background="@color/colorAccent"
+            android:drawableTint="@android:color/white"
+            android:onClick="planearViaje"
+            android:text="Ir"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white" />
     </RelativeLayout>
 
 

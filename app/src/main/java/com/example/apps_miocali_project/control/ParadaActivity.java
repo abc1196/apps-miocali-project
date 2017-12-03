@@ -4,6 +4,8 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,14 +19,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.apps_miocali_project.R;
 
@@ -42,6 +42,7 @@ import Modelo.Tiempo;
 public class ParadaActivity extends AppCompatActivity {
 
     private final static String NOMBRE_RUTA="http://190.216.202.35:82/WebInformador/rxp/mobil/clienteXML.php?id=";
+    private final static String TIEMPO_BUSES="TIEMPO_BUSES";
     private ArrayList<String> rutasParada;
     private String idParada;
     private Toolbar mToolbar;
@@ -54,6 +55,9 @@ public class ParadaActivity extends AppCompatActivity {
     RecyclerView MyRecyclerView;
     RecyclerView recyclerViewTime;
     private Switch aSwitch;
+    boolean activarBuses=false;
+    String htmldata="";
+    ArrayList<Tiempo> infoTiempos= new ArrayList<Tiempo>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,12 +80,7 @@ public class ParadaActivity extends AppCompatActivity {
         rutasParada=new ArrayList<String>();
         rutasParada=db.cargarRutasParada(idParada);
         txtParada.setText(nombreParada);
-        //      myWebView = (WebView) findViewById(R.id.webView);
-        //     WebSettings webSettings = myWebView.getSettings();
-        //    webSettings.setJavaScriptEnabled(true);
-        //     myWebView.setWebViewClient(new WebViewClient());
         Log.d("PARADA", idParada);
-
         MyRecyclerView = (RecyclerView) findViewById(R.id.cardView);
         MyRecyclerView.setHasFixedSize(true);
         LinearLayoutManager MyLayoutManager = new LinearLayoutManager(getActivity());
@@ -110,11 +109,13 @@ public class ParadaActivity extends AppCompatActivity {
                 }
             }
         });
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        activarBuses=sharedPref.getBoolean(TIEMPO_BUSES,false);
+        if(activarBuses){
+            aSwitch.setChecked(activarBuses);
+        }
 
     }
-    boolean activarBuses=false;
-    String htmldata="";
-    ArrayList<Tiempo> infoTiempos= new ArrayList<Tiempo>();
     public void getStopTimes(){
         txtError.setVisibility( View.VISIBLE);
         txtError.setText(getResources().getString(R.string.cargando_buses));
@@ -202,6 +203,10 @@ public class ParadaActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 // todo: goto back activity from here
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean(TIEMPO_BUSES, activarBuses).commit();
+                if(activarBuses){activarBuses=false;}
                 this.finish();
                 return true;
 
@@ -321,6 +326,5 @@ public class ParadaActivity extends AppCompatActivity {
             return list.size();
         }
     }
-
 
 }
