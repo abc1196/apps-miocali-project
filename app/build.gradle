@@ -41,5 +41,4 @@ dependencies {
     compile 'com.google.transit:gtfs-realtime-bindings:0.0.1'
     compile group: 'com.google.transit', name: 'gtfs-realtime-bindings', version: '0.0.1'
 
-
 }

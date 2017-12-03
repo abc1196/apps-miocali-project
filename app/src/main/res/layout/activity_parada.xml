@@ -69,36 +69,36 @@
 
 
 
-        <RelativeLayout android:id="@+id/layoutInfoTres"
+    <RelativeLayout android:id="@+id/layoutInfoTres"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layoutInfo"
+        android:background="@android:color/white"
+        android:layout_margin="8dp">
+        <TextView android:id="@+id/txtInfoDos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rutas_cercana"
+            android:textSize="16dp"
+            android:layout_margin="8dp"/>
+        <Switch
+            android:id="@+id/toggleButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_toRightOf="@+id/txtInfoDos"
+            android:textOff="Off"
+            android:textOn="On" />
+        <TextView android:id="@+id/txtWeb"
+            android:layout_below="@+id/txtInfoDos"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/layoutInfo"
-            android:background="@android:color/white"
-            android:layout_margin="8dp">
-            <TextView android:id="@+id/txtInfoDos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/rutas_cercana"
-                android:textSize="16dp"
-                android:layout_margin="8dp"/>
-            <Switch
-                android:id="@+id/toggleButton1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_toRightOf="@+id/txtInfoDos"
-                android:textOff="Off"
-                android:textOn="On" />
-            <TextView android:id="@+id/txtWeb"
-                android:layout_below="@+id/txtInfoDos"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="@string/info_buses"
-                android:gravity="center"
-                />
-            <ScrollView android:layout_below="@+id/toggleButton1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+            android:text="@string/info_buses"
+            android:gravity="center"
+            />
+        <ScrollView android:layout_below="@+id/toggleButton1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -117,8 +117,8 @@
                     android:visibility="gone"></android.support.v7.widget.RecyclerView>
 
             </RelativeLayout>
-            </ScrollView>
-        </RelativeLayout>
+        </ScrollView>
+    </RelativeLayout>
 
 
 

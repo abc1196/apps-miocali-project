@@ -1,46 +1,53 @@
-package com.example.apps_miocali_project.control;
+package layout;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 
 import com.example.apps_miocali_project.R;
-
-import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link StropDetailFragment.OnFragmentInteractionListener} interface
+ * {@link SelectBusRealTime.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link StropDetailFragment#newInstance} factory method to
+ * Use the {@link SelectBusRealTime#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StropDetailFragment extends Fragment {
+public class SelectBusRealTime extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private String nombreParada;
-    private ArrayList<String> rutasParada;
-    private RecyclerView recyclerView;
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+
     private OnFragmentInteractionListener mListener;
 
-    public StropDetailFragment() {
+    private AutoCompleteTextView autoCompleteTextView;
+
+    public SelectBusRealTime() {
         // Required empty public constructor
     }
 
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment SelectBusRealTime.
+     */
     // TODO: Rename and change types and number of parameters
-    public static StropDetailFragment newInstance(String param1, String param2) {
-        StropDetailFragment fragment = new StropDetailFragment();
+    public static SelectBusRealTime newInstance(String param1, String param2) {
+        SelectBusRealTime fragment = new SelectBusRealTime();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -48,25 +55,20 @@ public class StropDetailFragment extends Fragment {
         return fragment;
     }
 
-    public void onCreate(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        View rootView = inflater.inflate(R.layout.fragment_strop_detail, container, false);
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
-        ArrayList<String> rutasParada=new ArrayList<String>();
-
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rutasParada = (ArrayList<String>) this.getArguments().getStringArrayList("rutasParadas");
-
-        Recicler_View_Adapter_StopDetail adapter = new Recicler_View_Adapter_StopDetail(rutasParada, nombreParada ,getActivity());
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        return inflater.inflate(R.layout.fragment_strop_detail, container, false);
+        return inflater.inflate(R.layout.fragment_select_bus_real_time, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

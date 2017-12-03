@@ -58,7 +58,7 @@
 
 
                 <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/accion_filtro"
+                    android:id="@+id/accion_buses"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:fab_colorNormal="@color/colorPrimary"
@@ -67,7 +67,7 @@
                     fab:fab_size="mini"
                     app:fab_label="@string/buscar_buses"
                     android:src="@drawable/rsz_ic_bus"
-                    android:onClick="activarMenuBuses"/>
+                    android:onClick="activarBusquedaRutaTiempoReal"/>
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/accion_paradas"
