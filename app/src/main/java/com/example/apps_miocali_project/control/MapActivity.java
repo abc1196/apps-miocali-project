@@ -79,7 +79,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private PlaceAutocompleteFragment autocompleteFragment;
     private HashMap<Marker, String> mapRecargas;
     private ArrayList<Marker> listWifi;
-
+    private ArrayList<Marker> busesTiempoReal;
     private LocationManager locationManager;
     private LocationListener locationListener;
 
@@ -115,6 +115,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        darBusesTiempoReal = new ConexionHTTPTReal();
         idParada="";
         nomParada="";
         txtParadaNombre=(TextView)findViewById(R.id.txtParadaNombre);
@@ -122,8 +123,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         btnFav=(Button)findViewById(R.id.btnFav);
         distanciaRutas=500;
         distanciaFiltro=500;
+        busesTiempoReal = new ArrayList<>();
         db= new DataBase(this);
-        ubicacionActivada = true;
+        db.cargarModeloRutas();
+        //ubicacionActivada = true;
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         fabMenu=(FloatingActionMenu)findViewById(R.id.menu_fab);
@@ -147,7 +150,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         listWifi= new ArrayList<Marker>();
 
         marcadoresPlanearRuta= new ArrayList<Marker>();
-
+        permisoPosicion = true;
         AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(Place.TYPE_COUNTRY)
                 .setCountry("CO")
@@ -262,6 +265,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         inflater.inflate(R.menu.menu, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -282,7 +286,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map = googleMap;
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
-        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+       requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -328,6 +332,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     //TODO
 
     }
+
     public void puntosParadas(View v) {
         if(permisoPosicion&&!paradas){
         pintarPuntosParadas();
@@ -343,6 +348,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.putBoolean(PARADAS_ACTIVAS, paradas);
 
     }
+
+
     public void mostrarParada(View v){
 
         Intent intent= new Intent(getActivity(),ParadaActivity.class);
@@ -350,6 +357,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         intent.putExtra("nombreParada",nomParada);
         startActivity(intent);
     }
+
     public void pintarPuntosParadas() {
             db.cargarModeloParadas();
             for (int i = 0; i < db.getMundo().getParadasDelSistema().size(); i++) {
@@ -365,14 +373,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     mapParadas.put(marker,id);
                 }
             }
+
     }
+
     public void borrarPuntosParada(){
         for(Map.Entry<Marker,String> entry: mapParadas.entrySet()){
             Marker marker= entry.getKey();
             marker.remove();
+
         }
         mapParadas.clear();
     }
+
+
     public void puntosRecarga(View v) {
         if(permisoPosicion&&!recargas) {
             pintarPuntosRecarga();
@@ -386,7 +399,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(RECARGAS_ACTIVAS, recargas);
+
+
     }
+
     public void pintarPuntosRecarga() {
             db.cargarModeloPuntosRecarga();
             for (int i = 0; i < db.getMundo().getPuntosRecarga().size(); i++) {
@@ -403,6 +419,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
 
     }
+
     public void borrarPuntosRecarga(){
         for(Map.Entry<Marker,String> entry: mapRecargas.entrySet()){
             Marker marker= entry.getKey();
@@ -411,6 +428,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         mapRecargas.clear();
     }
+
+
     public void puntosWifi(View v) {
         if(permisoPosicion&&!wifi) {
             pintarPuntosWifi();
@@ -426,6 +445,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.putBoolean(WIFI_ACTIVAS, wifi);
 
     }
+
     public void pintarPuntosWifi() {
             db.cargarModeloPuntosWifi();
             for (int i = 0; i < db.getMundo().getEstacionesWifi().size(); i++) {
@@ -522,8 +542,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         return out;
     }
+
+
     public void actualizarLocalizaciónActual() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
             return;
         }
@@ -558,7 +580,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
+
     public void activarMenuBuses(View v){
+       tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada("", "P10A");
+       tr.execute();
+       Log.d("BUSEST", "Ejecutando tarea");
  //       activarBusquedaRutaTiempoReal();
    //     new tareaAsyncBuscarRutaParada(idParada,"P10A").execute();
     }
@@ -615,14 +641,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         final CrystalSeekbar seekbar=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar4);
         final CrystalSeekbar seekbar1=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar6);
         seekbar1.setMinValue(100).setMaxValue(1000);
-       // Log.d("TAGDISTANCIA","DISTANCIA: "+(float)distanciaFiltro);
+        Log.d("TAGDISTANCIA","DISTANCIA: "+(float)distanciaFiltro);
         if(distanciaFiltro==100){seekbar1.setMinStartValue(0 ).apply();}else{
         seekbar1.setMinStartValue((float) distanciaFiltro ).apply();}
-      //Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
+     Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
-              //  Log.d("TAGDISTANCIA","ACTIVITY: "+value.doubleValue());
+                Log.d("TAGDISTANCIA","ACTIVITY: "+value.doubleValue());
                 distanciaFiltro=value.doubleValue();
                 txtDistanciaPuntos.setText(String.valueOf(value) + " m");
             }
@@ -688,6 +714,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onError(Status status) {
 
     }
+
     public void planearViaje(View v){
         if(!marcadoresPlanearRuta.isEmpty()){
             pg = ProgressDialog.show(this,"Por favor espera...", "Estamos planeando tu viaje",false, false);
@@ -695,6 +722,32 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             new tareaAsyncPlanearViaje(pg,Double.toString(ultimaLocacion.getLatitude()),Double.toString(ultimaLocacion.getLongitude()), Double.toString(marcadoresPlanearRuta.get(0).getPosition().latitude), Double.toString(marcadoresPlanearRuta.get(0).getPosition().longitude)).execute();
         }
     }
+
+    public void pintarBuses(ArrayList<Bus> buses, String ruta,String identRuta){
+        for (int i = 0; i < busesTiempoReal.size(); i++) {
+            Marker marker = busesTiempoReal.get(i);
+            marker.remove();
+        }
+        busesTiempoReal.clear();
+        for(int i=0; i<buses.size(); i++) {
+            if (buses.get(i).getRouteId().equals(ruta)) {
+                Log.d("buses", buses.get(i).getLatitud()+"");
+                Log.d("buses", buses.get(i).getLongitud()+"");
+                MarkerOptions marker_onclick = new MarkerOptions()
+                        .anchor(0f, 0.5f) // Anchors the marker on the center parte inferior
+                        .title(identRuta)
+                        .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus32));
+                Marker marker = map.addMarker(marker_onclick);
+                busesTiempoReal.add(marker);
+            }
+        }
+        darBusesTiempoReal.setConsultaLista(false);
+        if(darBusesTiempoReal.isAlive() && darBusesTiempoReal.isMantener()){
+            tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada(ruta,  identRuta);
+            tr.execute();
+        }
+    }
+
 
     public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
 
@@ -740,35 +793,62 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
     public class tareaAsyncBuscarRutaParada extends AsyncTask<Void, Void, Void> {
 
-        public tareaAsyncBuscarRutaParada(String idParada, String idRoute) {
+        private String ruta;
+        private String idRoute;
+        private ArrayList<Bus> buses;
+        public tareaAsyncBuscarRutaParada(String idRoute, String identRuta) {
+            this.idRoute = identRuta;
+            if(darBusesTiempoReal.isAlive()){
+                ruta = idRoute;
+            }else{
+                ruta = "";
+            }
+            buses = new ArrayList<>();
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
+
         @Override
         protected Void doInBackground(Void... voids) {
             try{
-                darBusesTiempoReal.start();
-                while (darBusesTiempoReal.isMantener()){
-                    if(darBusesTiempoReal.isConsultaLista()){
-                    ArrayList<Bus> buses=darBusesTiempoReal.getBuses();
-                        Log.d("BUSESTAG","Consulta tiempo real");
-                        for(int i=0; i<buses.size(); i++){
-                            Log.d("BUSEST   AG","Bus: "+buses.get(i).getRouteId());
+                Log.d("buses", "Entrando al hilo");
+                if(!darBusesTiempoReal.isAlive()){
+                    Log.d("buses", "Entrando al hilo por primera vez");
+                    darBusesTiempoReal.start();
+                    darBusesTiempoReal.setMantener(true);
+                    boolean encontro = false;
+                    for (int i = 0; i < db.getMundo().getRutas().size() && !encontro; i++) {
+                        if (idRoute.equals(db.getMundo().getRutas().get(i).getIdentificador())) {
+                            ruta = db.getMundo().getRutas().get(i).getIdRuta();
+                            encontro = true;
                         }
                         Log.d("BUSESTAG","After tiempo real");
                     }
                 }
+                while(!darBusesTiempoReal.isConsultaLista()){
+
+                }
+                Log.d("buses", ruta);
+                Log.d("Buses", "Saliendo del hilo");
             }catch (Exception e){
                 e.printStackTrace();
             }
             return null;
         }
+
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
-          //  pg.dismiss();
+            //while (darBusesTiempoReal.isMantener()){
+                    ArrayList<Bus> buses = darBusesTiempoReal.getBuses();
+                    pintarBuses(buses, ruta, idRoute);
+
+
+            //}
         }
     }
+
 }
 

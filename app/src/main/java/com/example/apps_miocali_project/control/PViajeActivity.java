@@ -138,7 +138,8 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                         MarkerOptions marker_onclick = new MarkerOptions()
                                 .anchor(0.5f, 0.5f) // Anchors the marker on the center
                                 .title(dest.getNombreDestino())
-                                .snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
+                                .snippet("Abordar la ruta: " + viaje.getDestinos().get(i+1).getIdentBus())
+                                //.snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
                                 .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
 
                         Marker marker = map.addMarker(marker_onclick);
