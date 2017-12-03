@@ -27,6 +27,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -557,8 +559,50 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
     public void activarMenuBuses(View v){
-        new tareaAsyncBuscarRutaParada(idParada,"P10A").execute();
+ //       activarBusquedaRutaTiempoReal();
+   //     new tareaAsyncBuscarRutaParada(idParada,"P10A").execute();
     }
+
+    public void activarBusquedaRutaTiempoReal(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setTitle("Busca una ruta");
+        builder.setMessage("Mira la posición de la ruta en tiempo real");
+        LayoutInflater inflater = this.getLayoutInflater();
+        View view = inflater.inflate(R.layout.fragment_select_bus_real_time, null);
+        ArrayList<String> buses=db.getBuses();
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.select_dialog_item,buses);
+        final AutoCompleteTextView actv = (AutoCompleteTextView) view.findViewById(R.id.autoCompleteText);
+        actv.setThreshold(0);//will start working from first character
+        actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
+
+        builder.setView(view);
+        builder.setPositiveButton("Aceptar",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String bus=actv.getText().toString();
+                        Log.d("BUS=",bus);
+                        new tareaAsyncBuscarRutaParada(idParada,bus).execute();
+                        //METODAZO PARA BUSCAR LA RUTA EN TIEMPO REAL DE SWAN
+
+
+                        dialog.cancel();
+                    }
+                });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     public void activarMenuFiltro(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
@@ -571,14 +615,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         final CrystalSeekbar seekbar=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar4);
         final CrystalSeekbar seekbar1=(CrystalSeekbar)view.findViewById(R.id.rangeSeekbar6);
         seekbar1.setMinValue(100).setMaxValue(1000);
-        Log.d("TAGDISTANCIA","DISTANCIA: "+(float)distanciaFiltro);
+       // Log.d("TAGDISTANCIA","DISTANCIA: "+(float)distanciaFiltro);
         if(distanciaFiltro==100){seekbar1.setMinStartValue(0 ).apply();}else{
         seekbar1.setMinStartValue((float) distanciaFiltro ).apply();}
-     Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
+      //Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
-                Log.d("TAGDISTANCIA","ACTIVITY: "+value.doubleValue());
+              //  Log.d("TAGDISTANCIA","ACTIVITY: "+value.doubleValue());
                 distanciaFiltro=value.doubleValue();
                 txtDistanciaPuntos.setText(String.valueOf(value) + " m");
             }

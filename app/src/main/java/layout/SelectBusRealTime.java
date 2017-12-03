@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 
 import com.example.apps_miocali_project.R;
 
@@ -29,6 +30,8 @@ public class SelectBusRealTime extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private AutoCompleteTextView autoCompleteTextView;
 
     public SelectBusRealTime() {
         // Required empty public constructor

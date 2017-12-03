@@ -337,6 +337,25 @@ public class DataBase extends SQLiteOpenHelper implements Serializable {
         return rutas;
     }
 
+    public ArrayList<String> getBuses(){
+
+        ArrayList<String> buses=new ArrayList<String>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT "+ this.IDENT_RUTA+" FROM " + this.TABLA_RUTAS ;
+        Cursor busqueda = db.rawQuery(query,null);
+        if(busqueda.moveToFirst()){
+            String busActual=busqueda.getString(0);
+            buses.add(busActual);
+            while (busqueda.moveToNext()){
+                busActual=busqueda.getString(0);
+                        buses.add(busActual);
+
+                }
+
+        }
+        return buses;
+    }
+
     public String getRutasParada(){
         String rutasParadas="";
         if (rutas!=null){

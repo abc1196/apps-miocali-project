@@ -67,7 +67,7 @@
                     fab:fab_size="mini"
                     app:fab_label="@string/buscar_buses"
                     android:src="@drawable/rsz_ic_bus"
-                    android:onClick="activarMenuBuses"/>
+                    android:onClick="activarBusquedaRutaTiempoReal"/>
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/accion_paradas"
