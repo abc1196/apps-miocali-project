@@ -29,18 +29,9 @@
             </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="8dp"
-        android:background="@android:color/white"
-        android:text="Busca tu destino!"
-        android:textColor="@android:color/darker_gray"
-        android:drawableLeft="@android:drawable/ic_menu_search"
-        />
+
+
+
 
     <include layout="@layout/map_fragment" />
     <RelativeLayout
@@ -118,7 +109,7 @@
                 android:src="@drawable/ic_gps_fixed_black_24dp"
                 android:tint="@android:color/white"
                 android:onClick="darUbicacionActual"
-                android:layout_marginBottom="16dp"/>
+                android:layout_margin="16dp"/>
         </android.support.design.widget.CoordinatorLayout>
 
 
@@ -127,13 +118,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             android:visibility="gone">
-            <TextView android:id="@+id/txtRutaNombre"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="NOMBRE RUTA"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:layout_margin="8dp"/>
+
 
         </RelativeLayout>
 

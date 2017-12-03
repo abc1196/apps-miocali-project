@@ -1,20 +1,31 @@
 package com.example.apps_miocali_project.control;
 
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
+import com.getbase.floatingactionbutton.FloatingActionButton;
+
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -23,32 +34,50 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.example.apps_miocali_project.R;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
+
+import Modelo.Destino;
+import Modelo.Viaje;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener  {
     private ProgressDialog pg;
 
     public SharedPreferences sharedPref;
@@ -58,9 +87,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
-    private double distanciaFiltro;
     private float distanciaRutas;
     private HashMap<Marker, String> mapParadas;
+    private PlaceAutocompleteFragment autocompleteFragment;
+
+    private ArrayList<Marker> listParadas;
     private ArrayList<Marker> listRecargas;
     private ArrayList<Marker> listWifi;
 
@@ -68,6 +99,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private LocationListener locationListener;
 
     private Location ultimaLocacion;
+    private ArrayList<Marker> marcadoresPlanearRuta;
+    private Button btnBusquedaDestino;
 
 
     private final static String KEY_LOCATION_LATITUD = "location latitud";
@@ -92,28 +125,63 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        idParada="";
-        txtRutaNombre=(TextView)findViewById(R.id.txtRutaNombre);
-        distanciaRutas=500;
-        distanciaFiltro=500;
-        db= new DataBase(this);
+        idParada = "";
+        txtRutaNombre = (TextView) findViewById(R.id.txtRutaNombre);
+        distanciaRutas = 500;
+        distanciaFiltro = 500;
+        db = new DataBase(this);
         ubicacionActivada = true;
+
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
-        fabUbicacion=(android.support.design.widget.FloatingActionButton)findViewById(R.id.fabUbicacion);
-        fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
-        paradas=false;
-        mapParadas= new HashMap<Marker, String>();
-        fabRecargas=(FloatingActionButton) findViewById(R.id.accion_recargas);
-        recargas=false;
-        listRecargas= new ArrayList<Marker>();
-        fabWifi=(FloatingActionButton) findViewById(R.id.accion_wifi);
-        wifi=false;
-        listWifi= new ArrayList<Marker>();
+        paradasLayout = (RelativeLayout) findViewById(R.id.paradaLayout);
+        fabUbicacion = (android.support.design.widget.FloatingActionButton) findViewById(R.id.fabUbicacion);
+        fabParadas = (FloatingActionButton) findViewById(R.id.accion_paradas);
+        paradas = false;
+        listParadas = new ArrayList<Marker>();
+        mapParadas = new HashMap<Marker, String>();
+        fabRecargas = (FloatingActionButton) findViewById(R.id.accion_recargas);
+        recargas = false;
+        listRecargas = new ArrayList<Marker>();
+        fabWifi = (FloatingActionButton) findViewById(R.id.accion_wifi);
+        wifi = false;
+        listWifi = new ArrayList<Marker>();
 
         modoManual = false;
+
+        marcadoresPlanearRuta = new ArrayList<Marker>();
+
+        distanciaFiltro = 500;
+
+        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(Place.TYPE_COUNTRY)
+                .setCountry("CO")
+                .build();
+        autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setOnPlaceSelectedListener(this);
+        autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button).setOnClickListener(this);
+        autocompleteFragment.setFilter(autocompleteFilter);
+        autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(3.336139, -76.671709), new LatLng(3.519145, -76.447176)));
+
+
+        marcadoresPlanearRuta = new ArrayList<Marker>();
+
+        distanciaFiltro = 500;
+
+        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(Place.TYPE_COUNTRY)
+                .setCountry("CO")
+                .build();
+        autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setOnPlaceSelectedListener(this);
+        autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button).setOnClickListener(this);
+        autocompleteFragment.setFilter(autocompleteFilter);
+        autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(3.336139, -76.671709), new LatLng(3.519145, -76.447176)));
+
+
+    }
+
     }
 
     public Activity getActivity() {
@@ -130,7 +198,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if(mapParadas.containsKey(marker)){
                     Log.d("ALEJOTAG",marker.getTitle());
                     idParada=mapParadas.get(marker);
-                    txtRutaNombre.setText(marker.getTitle());
+                    mostrarRutasParada(marker.getTitle());
+                   // txtRutaNombre.setText(marker.getTitle());
                     paradasLayout.setVisibility(View.VISIBLE);
                 }
                 return false;
@@ -233,16 +302,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-    public void mostrarRutasParada(){
+    public void mostrarRutasParada(String nom){
 
-        Bundle bundle = new Bundle();
-        //MARKER CON LA ID_RUTA
-        String id_ruta="";
-        ArrayList<String> rutas = db.cargarRutasParada(id_ruta);
-        bundle.putStringArrayList("rutasParada",rutas);
-        StropDetailFragment fragmento = new StropDetailFragment();
-        fragmento.setArguments(bundle);
-
+        Intent intent= new Intent(getActivity(),ParadaActivity.class);
+        intent.putExtra("parada",idParada);
+        intent.putExtra("nombreParada",nom);
+        startActivity(intent);
     }
 
     public void pintarPuntosParadas() {
@@ -334,7 +399,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lng = db.getMundo().getEstacionesWifi().get(i).getLongitud();
                 if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
-                            .anchor(0.0f, 0.0f) // Anchors the marker on the bottom left
+                            .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                             .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_wifi));
                     Marker marker = map.addMarker(marker_onclick);
                     listWifi.add(marker);
@@ -413,6 +478,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 map.setMyLocationEnabled(false);
                 map.getUiSettings().setMyLocationButtonEnabled(false);
                 ultimaLocacion = null;
+                Log.d("1", "Ultima locacion cambio a null");
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
@@ -436,6 +502,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         return out;
     }
+
 
     public void actualizarLocalizaciónActual() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -466,6 +533,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
         }
     }
+
     public void darUbicacionActual(View v) {
         if(modoManual){
             Toast.makeText(getApplicationContext(), "Pasando a modo automático",
@@ -529,7 +597,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 txtDistancia.setText(String.valueOf(value) + " m");
             }
         });
-        seekbar1.setMinStartValue(distanciaRutas).apply();
+        seekbar1.setMinStartValue((float)distanciaRutas).apply();
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
@@ -565,6 +633,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    @Override
+    public void onClick(View view) {
+
+    }
+    @Override
+    public void onPlaceSelected(Place place) {
+            LatLng sel = place.getLatLng();
+            double lat = sel.latitude;
+            double lng = sel.longitude;
+            String nom = place.getName().toString();
+            String dir = place.getAddress().toString();
+            Log.d("Lugares", lat+"");
+        Log.d("Lugares", lng+"");
+        Log.d("Lugares", nom+"");
+        Log.d("Lugares", dir+"");
+
+    }
+    @Override
+    public void onError(Status status) {
+
+    }
+
     public class tareaAsyncPlanearViaje extends AsyncTask<Void, Void, Void> {
 
         private ProgressDialog pg;
@@ -588,6 +679,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         protected Void doInBackground(Void... voids) {
             try{
                 db.planearRuta(x1,y1,x2,y2);
+
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -596,6 +688,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
+            Intent intent = new Intent(getApplicationContext(), PViajeActivity.class);
+            intent.putExtra("viaje", db.getMundo().getViaje() );
+            intent.putExtra("x1", x1);
+            intent.putExtra("x2", x2);
+            intent.putExtra("y1", y1);
+            intent.putExtra("y2", y2);
+            startActivity(intent);
             pg.dismiss();
         }
     }
@@ -632,4 +731,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             pg.dismiss();
         }
     }
+
 }
