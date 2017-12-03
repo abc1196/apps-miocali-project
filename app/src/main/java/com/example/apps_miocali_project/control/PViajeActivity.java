@@ -12,8 +12,15 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.apps_miocali_project.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,6 +42,7 @@ import com.github.clans.fab.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import Modelo.Destino;
@@ -78,8 +86,13 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
     private double distanciaFiltro;
     private String x1,x2,y1,y2;
     private ConexionHTTPTReal darBusesTiempoReal;
-
-    private ArrayList<Marker> marcadoresPlanearRuta;
+    private Toolbar mToolbar;
+    private HashMap<Marker,Destino> marcadoresPlanearRuta;
+    private RelativeLayout paradasLayout;
+    private Destino destino;
+    private String nomParada;
+    private TextView txtParadaNombre;
+    private Button btnParada;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -91,11 +104,21 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
         x2 = intent.getStringExtra("x2");
         y1 = intent.getStringExtra("y1");
         y2 = intent.getStringExtra("y2");
-        marcadoresPlanearRuta= new ArrayList<Marker>();
+        marcadoresPlanearRuta= new HashMap<Marker,Destino>();
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         ubicacionActivada = true;
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapViaje);
         mapFragment.getMapAsync(this);
+        destino= null;
+        nomParada="";
+        txtParadaNombre=(TextView)findViewById(R.id.txtParadaNombre);
+        btnParada=(Button)findViewById(R.id.btnParada);
+        paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
+
     }
 
     public Activity getActivity() {
@@ -110,6 +133,32 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(Double.parseDouble(y1),Double.parseDouble(x1)), DEFAULT_ZOOM));
        // requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+          map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+              @Override
+              public boolean onMarkerClick(Marker marker) {
+                  if(marcadoresPlanearRuta.containsKey(marker)){
+                      Log.d("ALEJOTAG",marker.getTitle());
+                      destino=marcadoresPlanearRuta.get(marker);
+                      nomParada=marker.getTitle();
+                      txtParadaNombre.setText(destino.getNombreDestino()+": "+ destino.getIdentBus());
+                      if(btnParada.getVisibility()== View.GONE){
+                          btnParada.setVisibility(View.VISIBLE);
+                      }
+                      paradasLayout.setVisibility(View.VISIBLE);
+                  }
+                  return false;
+              }
+          });
+
+          map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+              @Override
+              public void onMapClick(LatLng latLng) {
+                  if (paradasLayout.getVisibility() == View.VISIBLE) {
+                      paradasLayout.setVisibility(View.GONE);
+                      txtParadaNombre.setText("");
+                  }
+              }});
+
           planearViaje(x1,y1,x2,y2);
     }
 
@@ -123,7 +172,7 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                         .snippet("Hora de salida: " + viaje.getHoraSalida())
                         .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.placeholder64));
                 Marker marker = map.addMarker(marker_onclick);
-                marcadoresPlanearRuta.add(marker);
+                marcadoresPlanearRuta.put(marker,dest);
             }else if(i == viaje.getDestinos().size()-1){
                 MarkerOptions marker_onclick = new MarkerOptions()
                         .anchor(0.5f, 0.5f) // Anchors the marker on the center
@@ -131,18 +180,19 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                         .snippet("Hora de llegada: " + viaje.getHoraLlegada())
                         .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.flag));
                 Marker marker = map.addMarker(marker_onclick);
-                marcadoresPlanearRuta.add(marker);
+                marcadoresPlanearRuta.put(marker,dest);
             }else if(i>0 && i < viaje.getDestinos().size()){
                 if((i+1)<viaje.getDestinos().size()) {
                     if(!viaje.getDestinos().get(i).getIdentBus().equals(viaje.getDestinos().get(i+1).getIdentBus())) {
+
                         MarkerOptions marker_onclick = new MarkerOptions()
                                 .anchor(0.5f, 0.5f) // Anchors the marker on the center
-                                .title(dest.getNombreDestino())
+                                .title(dest.getNombreDestino()+": "+dest.getIdentBus())
                                 .snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
                                 .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
 
                         Marker marker = map.addMarker(marker_onclick);
-                        marcadoresPlanearRuta.add(marker);
+                        marcadoresPlanearRuta.put(marker,dest);
                     }
                 }
             }
@@ -180,6 +230,22 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                 }
 
             }
+        }
+    }
+
+    public void mostrarParada(View v){
+        //TODO
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // todo: goto back activity from here
+                this.finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

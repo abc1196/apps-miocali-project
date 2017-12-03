@@ -15,6 +15,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +23,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -91,6 +93,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private final static String PARADAS_ACTIVAS="PARADAS";
     private final static String RECARGAS_ACTIVAS="RECARGAS";
     private final static String WIFI_ACTIVAS="WIFI";
+    private final static String DISTANCIA_FILTRO="FILTRO";
+    private final static String DISTANCIA_RUTAS="RUTAS";
     private boolean permisoPosicion;
     private boolean ubicacionActivada;
 
@@ -112,14 +116,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+         setContentView(R.layout.activity_map);
         idParada="";
         nomParada="";
         txtParadaNombre=(TextView)findViewById(R.id.txtParadaNombre);
         btnParada=(Button)findViewById(R.id.btnParada);
         btnFav=(Button)findViewById(R.id.btnFav);
-        distanciaRutas=500;
-        distanciaFiltro=500;
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        int filtro = sharedPref.getInt(DISTANCIA_FILTRO, 500);
+        distanciaFiltro=(float)filtro;
+        int rutas = sharedPref.getInt(DISTANCIA_RUTAS, 500);
+        distanciaRutas=(float)rutas;
         db= new DataBase(this);
         ubicacionActivada = true;
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -168,8 +175,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     destinoLayout.setVisibility(View.VISIBLE);
                     Log.i("PLACETAG", "Place: " + place.getName());
                 }else{
-                    Toast.makeText(getApplicationContext(),"Solo puedes seleccionar un destino",Toast.LENGTH_SHORT);
-                }
+                    Marker marker=marcadoresPlanearRuta.get(0);
+                    marker.remove();
+                    txtDestinoNombre.setText("");
+                    txtDestinoDireccion.setText("");
+                    autocompleteFragment.setText("");
+                    marcadoresPlanearRuta.clear();
+                    LatLng p = place.getLatLng();
+                    marker = map.addMarker(new MarkerOptions().position(p).title(place.getName().toString()).snippet(place.getAddress().toString()));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(p,16 ));
+                    marcadoresPlanearRuta.add(marker);
+                    txtDestinoNombre.setText(place.getName().toString());
+                    txtDestinoDireccion.setText(place.getAddress().toString());
+
+                } Log.i("PLACETAGN", "Place: " + place.getName());
             }
 
             @Override
@@ -194,8 +213,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
         String longitud = sharedPref.getString(KEY_LOCATION_LONGITUD, "0");
         if (latitud.equals("0")) {
@@ -239,15 +256,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
         };
-        boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
-        boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
-        boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
-        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
-        if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
-        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
+
     }
 
     public Activity getActivity() {
@@ -316,10 +325,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if(paradasLayout.getVisibility() == View.VISIBLE) {
                     paradasLayout.setVisibility(View.GONE);
                     txtParadaNombre.setText("");
-
+                }
+                if(!marcadoresPlanearRuta.isEmpty()){
+                    marcadoresPlanearRuta.get(0).remove();
+                    marcadoresPlanearRuta.clear();
+                    destinoLayout.setVisibility(View.GONE);
+                    txtDestinoNombre.setText("");
+                    txtDestinoDireccion.setText("");
+                    autocompleteFragment.setText("");
+                }
+                if(fabMenu.isOpened()){
+                    fabMenu.close(true);
                 }
             }
         });
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
+        boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
+        boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
+        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
     }
 
     public void agregarAWidget(View view) {
@@ -340,7 +369,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(PARADAS_ACTIVAS, paradas);
+        editor.putBoolean(PARADAS_ACTIVAS, paradas).commit();
 
     }
 
@@ -393,7 +422,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(RECARGAS_ACTIVAS, recargas);
+        editor.putBoolean(RECARGAS_ACTIVAS, recargas).commit();
 
 
     }
@@ -437,7 +466,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(WIFI_ACTIVAS, wifi);
+        editor.putBoolean(WIFI_ACTIVAS, wifi).commit();
 
     }
 
@@ -601,6 +630,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public void valueChanged(Number value) {
                 Log.d("TAGDISTANCIA","ACTIVITY: "+value.doubleValue());
                 distanciaFiltro=value.doubleValue();
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt(DISTANCIA_FILTRO, (int)distanciaFiltro).commit();
                 txtDistanciaPuntos.setText(String.valueOf(value) + " m");
             }
         });
@@ -609,6 +641,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void valueChanged(Number value) {
                 distanciaRutas=value.floatValue();
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt(DISTANCIA_RUTAS, (int)distanciaRutas).commit();
                 txtDistancia.setText(String.valueOf(value) + "m");
             }
         });
@@ -708,13 +743,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
             Intent intent = new Intent(getApplicationContext(), PViajeActivity.class);
-            intent.putExtra("viaje", db.getMundo().getViaje() );
-            intent.putExtra("x1", x1);
-            intent.putExtra("x2", x2);
-            intent.putExtra("y1", y1);
-            intent.putExtra("y2", y2);
-            startActivity(intent);
-            pg.dismiss();
+            Log.d("VIAJETAG","EL VIAJE: "+db.getMundo().getViaje().getDestinos().size());
+            if(db.getMundo().getViaje().getDestinos().size()>0) {
+                intent.putExtra("viaje", db.getMundo().getViaje());
+                intent.putExtra("x1", x1);
+                intent.putExtra("x2", x2);
+                intent.putExtra("y1", y1);
+                intent.putExtra("y2", y2);
+                startActivity(intent);
+                pg.dismiss();
+            }else{
+                Toast toast=  Toast.makeText(getActivity(),"No encontramos viaje para tu destino. Intenta con otra ubicación.", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+                pg.dismiss();
+            }
         }
     }
     public class tareaAsyncBuscarRutaParada extends AsyncTask<Void, Void, Void> {
