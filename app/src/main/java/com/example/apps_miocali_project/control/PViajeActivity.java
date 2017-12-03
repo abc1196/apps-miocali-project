@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.example.apps_miocali_project.R;
-import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -26,11 +25,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Dash;
 import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.github.clans.fab.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +62,6 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
     private LocationListener locationListener;
 
     private Location ultimaLocacion;
-    private ArrayList<Marker> marcadoresPlanearRuta;
 
 
     private final static String KEY_LOCATION_LATITUD = "location latitud";
@@ -79,6 +79,7 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
     private String x1,x2,y1,y2;
     private ConexionHTTPTReal darBusesTiempoReal;
 
+    private ArrayList<Marker> marcadoresPlanearRuta;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -90,82 +91,26 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
         x2 = intent.getStringExtra("x2");
         y1 = intent.getStringExtra("y1");
         y2 = intent.getStringExtra("y2");
+        marcadoresPlanearRuta= new ArrayList<Marker>();
         ubicacionActivada = true;
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapViaje);
         mapFragment.getMapAsync(this);
-        fabParadas = (FloatingActionButton) findViewById(R.id.accion_paradas);
-        paradas = false;
-        listParadas = new ArrayList<Marker>();
-        fabRecargas = (FloatingActionButton) findViewById(R.id.accion_recargas);
-        recargas = false;
-        listRecargas = new ArrayList<Marker>();
-        fabWifi = (FloatingActionButton) findViewById(R.id.accion_wifi);
-        wifi = false;
-        listWifi = new ArrayList<Marker>();
-        marcadoresPlanearRuta= new ArrayList<Marker>();
-
-        distanciaFiltro = 500;
-
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
-        String longitud = sharedPref.getString(KEY_LOCATION_LONGITUD, "0");
-        if (latitud.equals("0")) {
-            Log.d("1", "No hay shared");
-        } else {
-            Log.d("1", "Hay Shared");
-            double sharedLatitud = Double.parseDouble(latitud);
-            double sharedLongitud = Double.parseDouble(longitud);
-            ultimaLocacion = new Location("");
-            ultimaLocacion.setLatitude(sharedLatitud);
-            ultimaLocacion.setLongitude(sharedLongitud);
-        }
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                ultimaLocacion = location;
-                Log.d("loc", "El loc mananager cambio a " + location.getLatitude() + " " + location.getLongitude());
-                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(KEY_LOCATION_LATITUD, "" + ultimaLocacion.getLatitude());
-                editor.putString(KEY_LOCATION_LONGITUD, "" + ultimaLocacion.getLongitude());
-                editor.commit();
-                Log.d("1", "Guardó en shared por movimiento");
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
     }
 
     public Activity getActivity() {
         return this;
     }
 
-    @SuppressLint("NewApi")
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
+      public void onMapReady(GoogleMap googleMap) {
+          googleMap.setMapStyle(
+                  MapStyleOptions.loadRawResourceStyle(
+                          this, R.raw.style_json));
         map = googleMap;
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(Double.parseDouble(y1),Double.parseDouble(x1)), DEFAULT_ZOOM));
-        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
-        planearViaje(x1,y1,x2,y2);
+       // requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+          planearViaje(x1,y1,x2,y2);
     }
 
     public void planearViaje(String x1, String y1, String x2, String y2){
@@ -193,7 +138,8 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                         MarkerOptions marker_onclick = new MarkerOptions()
                                 .anchor(0.5f, 0.5f) // Anchors the marker on the center
                                 .title(dest.getNombreDestino())
-                                .snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
+                                .snippet("Abordar la ruta: " + viaje.getDestinos().get(i+1).getIdentBus())
+                                //.snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
                                 .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
 
                         Marker marker = map.addMarker(marker_onclick);
