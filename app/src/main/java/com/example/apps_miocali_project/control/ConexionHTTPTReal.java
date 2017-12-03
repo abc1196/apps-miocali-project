@@ -69,6 +69,22 @@ private HttpURLConnection urlConnection;
         this.mantener = mantener;
     }
 
+    public void setRespuesta(String respuesta) {
+        this.respuesta = respuesta;
+    }
+
+    public void setConsultaLista(boolean consultaLista) {
+        this.consultaLista = consultaLista;
+    }
+
+    public void setBuses(ArrayList<Bus> buses) {
+        this.buses = buses;
+    }
+
+    public void setUrlConnection(HttpURLConnection urlConnection) {
+        this.urlConnection = urlConnection;
+    }
+
     public ArrayList<Bus> clienteHttp(String dirweb) throws IOException {
 
         ArrayList<Bus>  buses = new ArrayList<Bus>();
