@@ -8,7 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,6 +25,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -71,7 +74,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     android.support.design.widget.FloatingActionButton fabUbicacion;
     SupportMapFragment mapFragment;
     FloatingActionMenu fabMenu;
-    FloatingActionButton fabParadas, fabRecargas, fabWifi;
+    FloatingActionButton fabParadas, fabRecargas, fabWifi, accion_buses;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
@@ -127,7 +130,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         int filtro = sharedPref.getInt(DISTANCIA_FILTRO, 500);
         distanciaFiltro=(float)filtro;
-        int rutas = sharedPref.getInt(DISTANCIA_RUTAS, 500);
+        int rutas = sharedPref.getInt(DISTANCIA_RUTAS, 2000);
         distanciaRutas=(float)rutas;
         busesTiempoReal = new ArrayList<>();
         db= new DataBase(this);
@@ -145,6 +148,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         txtDestinoDireccion=(TextView)findViewById(R.id.txtDestinoDireccion);
         paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
         fabUbicacion=(android.support.design.widget.FloatingActionButton)findViewById(R.id.fabUbicacion);
+        accion_buses=(FloatingActionButton)findViewById(R.id.accion_buses);
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
         mapParadas= new HashMap<Marker, String>();
@@ -179,7 +183,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     destinoLayout.setVisibility(View.VISIBLE);
                     Log.i("PLACETAG", "Place: " + place.getName());
                 }else{
-                    Toast.makeText(getApplicationContext(),"Solo puedes seleccionar un destino",Toast.LENGTH_SHORT);
+                    Marker marker=marcadoresPlanearRuta.get(0);
+                    marker.remove();
+                    txtDestinoNombre.setText("");
+                    txtDestinoDireccion.setText("");
+                    autocompleteFragment.setText("");
+                    marcadoresPlanearRuta.clear();
+                    LatLng p = place.getLatLng();
+                    marker = map.addMarker(new MarkerOptions().position(p).title(place.getName().toString()).snippet(place.getAddress().toString()));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(p,16 ));
+                    marcadoresPlanearRuta.add(marker);
+                    txtDestinoNombre.setText(place.getName().toString());
+                    txtDestinoDireccion.setText(place.getAddress().toString());
+
                 }
             }
 
@@ -205,8 +221,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
         String longitud = sharedPref.getString(KEY_LOCATION_LONGITUD, "0");
         if (latitud.equals("0")) {
@@ -250,15 +264,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
         };
-        boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
-        boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
-        boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
-        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
-        if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
-        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
+
     }
 
     public Activity getActivity() {
@@ -329,8 +335,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     txtParadaNombre.setText("");
 
                 }
+                if(!marcadoresPlanearRuta.isEmpty()){
+                    marcadoresPlanearRuta.get(0).remove();
+                    marcadoresPlanearRuta.clear();
+                    destinoLayout.setVisibility(View.GONE);
+                    txtDestinoNombre.setText("");
+                    txtDestinoDireccion.setText("");
+                    autocompleteFragment.setText("");
+                }
+                if(fabMenu.isOpened()){
+                    fabMenu.close(true);
+                }
             }
         });
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
+        boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
+        boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
+        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
     }
 
     public void agregarAWidget(View view) {
@@ -370,16 +397,23 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lat = db.getMundo().getParadasDelSistema().get(i).getLatitud();
                 Double lng = db.getMundo().getParadasDelSistema().get(i).getLongitud();
                 if (inRange(lat, lng, distanciaFiltro)) {
-                    String id=db.getMundo().getParadasDelSistema().get(i).getId();
-                    String nombre=db.getMundo().getParadasDelSistema().get(i).getNombre();
-                    MarkerOptions marker_onclick = new MarkerOptions()
-                            .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
-                    Marker marker=map.addMarker(marker_onclick);
-                    mapParadas.put(marker,id);
+                    String id = db.getMundo().getParadasDelSistema().get(i).getId();
+                    String nombre = db.getMundo().getParadasDelSistema().get(i).getNombre();
+                    if (db.getMundo().getParadasDelSistema().get(i).getId().startsWith("1")) {
+                        MarkerOptions marker_onclick = new MarkerOptions()
+                                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                                .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.station_marker));
+                        Marker marker = map.addMarker(marker_onclick);
+                        mapParadas.put(marker, id);
+                    } else {
+                        MarkerOptions marker_onclick = new MarkerOptions()
+                                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                                .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_marker));
+                        Marker marker = map.addMarker(marker_onclick);
+                        mapParadas.put(marker, id);
+                    }
                 }
             }
-
     }
 
     public void borrarPuntosParada(){
@@ -418,7 +452,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_recargas)).title(nombre);
+                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_zone_marker)).title(nombre);
                     Marker marker = map.addMarker(marker_onclick);
                     mapRecargas.put(marker,nombre);
                 }
@@ -457,13 +491,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             for (int i = 0; i < db.getMundo().getEstacionesWifi().size(); i++) {
                 Double lat = db.getMundo().getEstacionesWifi().get(i).getLatitud();
                 Double lng = db.getMundo().getEstacionesWifi().get(i).getLongitud();
-                if (inRange(lat, lng, distanciaFiltro)) {
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_wifi));
+                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.wifi_zone_marker));
                     Marker marker = map.addMarker(marker_onclick);
                     listWifi.add(marker);
-                }
+
             }
 
 
@@ -594,52 +627,65 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
  //       activarBusquedaRutaTiempoReal();
    //     new tareaAsyncBuscarRutaParada(idParada,"P10A").execute();
     }
-
+    private String busActivado="";
+    private boolean modoTiempoReal=false;
     public void activarBusquedaRutaTiempoReal(View v){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setCancelable(true);
-        builder.setTitle("Busca una ruta");
-        builder.setMessage("Mira la posición de la ruta en tiempo real");
-        LayoutInflater inflater = this.getLayoutInflater();
-        View view = inflater.inflate(R.layout.fragment_select_bus_real_time, null);
-        final ArrayList<String> buses=db.getBuses();
+        if(!modoTiempoReal) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(true);
+            builder.setTitle("Busca una ruta");
+            builder.setMessage("Mira la posición de la ruta en tiempo real");
+            LayoutInflater inflater = this.getLayoutInflater();
+            View view = inflater.inflate(R.layout.fragment_select_bus_real_time, null);
+            final ArrayList<String> buses = db.getBuses();
 
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.select_dialog_item,buses);
-        final AutoCompleteTextView actv = (AutoCompleteTextView) view.findViewById(R.id.autoCompleteText);
-        actv.setThreshold(0);//will start working from first character
-        actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item, buses);
+            final AutoCompleteTextView actv = (AutoCompleteTextView) view.findViewById(R.id.autoCompleteText);
+            actv.setThreshold(0);//will start working from first character
+            actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
 
-        builder.setView(view);
-        builder.setPositiveButton("Aceptar",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String bus = actv.getText().toString();
-                        if (buses.contains(bus)){
-                            Log.d("BUS=", bus);
-                        tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada("", bus);
-                        tr.execute();
+            builder.setView(view);
+            builder.setPositiveButton("Aceptar",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String bus = actv.getText().toString();
+                            if (buses.contains(bus)) {
+                                Log.d("BUS=", bus);
+                                busActivado=bus;
+                                darBusesTiempoReal= new ConexionHTTPTReal();
+                                tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada("", busActivado);
+                                tr.execute();
+                                dialog.cancel();
+                            } else {
+                                Toast toast = Toast.makeText(getActivity(), "Ingresa una ruta valida", Toast.LENGTH_LONG);
+                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                toast.show();
+                            }
 
-                            dialog.cancel();
-                        //METODAZO PARA BUSCAR LA RUTA EN TIEMPO REAL DE SWAN
-                    }else{
-                            Toast toast=Toast.makeText(getActivity(),"Ingresa una ruta valida",Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER,0,0);
-                            toast.show();
                         }
+                    });
+            builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
 
-                    }
-                });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }else{
+            if(darBusesTiempoReal.isAlive() && darBusesTiempoReal.isMantener()){
+                borrarBuses();
+                darBusesTiempoReal=null;
+                 Drawable myFabSrc = getResources().getDrawable(R.drawable.rsz_ic_bus);
+                accion_buses.setImageDrawable(myFabSrc);
+                accion_buses.setLabelText("Buscar buses");
+                modoTiempoReal=false;
+//set it to your
             }
-        });
-
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        }
     }
 
     public void activarMenuFiltro(){
@@ -698,6 +744,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             borrarPuntosRecarga();
                             pintarPuntosRecarga();
                         }
+                        if(darBusesTiempoReal!=null&&modoTiempoReal) {
+                            borrarBuses();
+                            darBusesTiempoReal=null;
+                            darBusesTiempoReal= new ConexionHTTPTReal();
+                            tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada("", busActivado);
+                            tr.execute();
+                        }
                         dialog.cancel();
                     }
                 });
@@ -742,29 +795,61 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    public void pintarBuses(ArrayList<Bus> buses, String ruta,String identRuta){
+    public void borrarBuses(){
         for (int i = 0; i < busesTiempoReal.size(); i++) {
             Marker marker = busesTiempoReal.get(i);
             marker.remove();
         }
         busesTiempoReal.clear();
-        for(int i=0; i<buses.size(); i++) {
-            if (buses.get(i).getRouteId().equals(ruta)) {
-                Log.d("buses", buses.get(i).getLatitud()+"");
-                Log.d("buses", buses.get(i).getLongitud()+"");
-                MarkerOptions marker_onclick = new MarkerOptions()
-                        .anchor(0f, 0.5f) // Anchors the marker on the center parte inferior
-                        .title(identRuta)
-                        .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus32));
-                Marker marker = map.addMarker(marker_onclick);
-                busesTiempoReal.add(marker);
+    }
+
+    public void pintarBuses(ArrayList<Bus> buses, String ruta,String identRuta){
+        borrarBuses();
+        if(!buses.isEmpty()){
+
+            int c=0;
+            for(int i=0; i<buses.size(); i++) {
+                if (buses.get(i).getRouteId().equals(ruta)) {
+                    Log.d("buses", buses.get(i).getLatitud()+"");
+                    Log.d("buses", buses.get(i).getLongitud()+"");
+                      if (inRange(buses.get(i).getLatitud(), buses.get(i).getLongitud(), distanciaRutas)) {
+                        MarkerOptions marker_onclick = new MarkerOptions()
+                                .anchor(0f, 0.5f) // Anchors the marker on the center parte inferior
+                                .title(identRuta)
+                                .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+                        Marker marker = map.addMarker(marker_onclick);
+                        busesTiempoReal.add(marker);
+                        c++;
+                    }
+                }
+
             }
+            if(c==0) {
+              Toast  toast = Toast.makeText(getActivity(), "No se encontraron buses cercanos. Establece un nuevo rango en el Filtro de Buses.", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }else{
+                if(!modoTiempoReal){
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 14));
+                    updateLocationUI();
+                }
+                modoTiempoReal=true;
+                Drawable myFabSrc = getResources().getDrawable(R.drawable.ic_cancel_route);
+                accion_buses.setImageDrawable(myFabSrc);
+                accion_buses.setLabelText(identRuta);
+                darBusesTiempoReal.setConsultaLista(false);
+                if(darBusesTiempoReal.isAlive() && darBusesTiempoReal.isMantener()){
+                    tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada(ruta,  identRuta);
+                    tr.execute();
+                }
+            }
+        }else{
+            Toast toast= Toast.makeText(getActivity(),"No se encontraron buses. Intenta más tarde.",Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER,0,0);
+            toast.show();
         }
-        darBusesTiempoReal.setConsultaLista(false);
-        if(darBusesTiempoReal.isAlive() && darBusesTiempoReal.isMantener()){
-            tareaAsyncBuscarRutaParada tr = new tareaAsyncBuscarRutaParada(ruta,  identRuta);
-            tr.execute();
-        }
+
     }
 
 
@@ -868,12 +953,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         protected  void onPostExecute(Void voids){
             super.onPostExecute(voids);
-            //while (darBusesTiempoReal.isMantener()){
-                    ArrayList<Bus> buses = darBusesTiempoReal.getBuses();
-                    pintarBuses(buses, ruta, idRoute);
-
-
-            //}
+            if(darBusesTiempoReal!=null) {
+                 ArrayList<Bus> buses = darBusesTiempoReal.getBuses();
+                 pintarBuses(buses, ruta, idRoute);
+            }
         }
     }
 

@@ -56,7 +56,7 @@ private HttpURLConnection urlConnection;
             while(mantener == true) {
                 consultaLista = false;
                 buses = clienteHttp("http://190.216.202.35:90/gtfs/realtime/");
-                sleep(32000);
+                sleep(10000);
             }
         }catch (IOException e) {
           e.printStackTrace();

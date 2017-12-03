@@ -178,7 +178,7 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                         .anchor(0.5f, 0.5f) // Anchors the marker on the center
                         .title(dest.getNombreDestino())
                         .snippet("Hora de llegada: " + viaje.getHoraLlegada())
-                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.flag));
+                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino()));
                 Marker marker = map.addMarker(marker_onclick);
                 marcadoresPlanearRuta.put(marker,dest);
             }else if(i>0 && i < viaje.getDestinos().size()){
@@ -189,7 +189,7 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                                 .anchor(0.5f, 0.5f) // Anchors the marker on the center
                                 .title(dest.getNombreDestino()+": "+dest.getIdentBus())
                                 .snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
-                                .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_ic_paradas));
+                                .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_marker));
 
                         Marker marker = map.addMarker(marker_onclick);
                         marcadoresPlanearRuta.put(marker,dest);

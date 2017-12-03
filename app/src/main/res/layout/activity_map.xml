@@ -79,13 +79,13 @@
                     fab:fab_size="mini"
                     app:fab_label="@string/paradas"
                     android:src="@drawable/rsz_ic_paradas_menu"
-                    android:tint="@android:color/white"
                     android:onClick="puntosParadas"/>
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/accion_recargas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:backgroundTint="@android:color/transparent"
                     app:fab_colorNormal="@color/colorDisabled"
                     fab:fab_colorPressed="@color/colorAccent"
                     fab:fab_colorRipple="@color/colorAccent"
