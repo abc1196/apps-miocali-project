@@ -419,7 +419,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(PARADAS_ACTIVAS, paradas);
+        editor.putBoolean(PARADAS_ACTIVAS, paradas).commit();
 
     }
 
@@ -479,7 +479,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(RECARGAS_ACTIVAS, recargas);
+        editor.putBoolean(RECARGAS_ACTIVAS, recargas).commit();
 
 
     }
@@ -523,7 +523,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(WIFI_ACTIVAS, wifi);
+        editor.putBoolean(WIFI_ACTIVAS, wifi).commit();
 
     }
 
