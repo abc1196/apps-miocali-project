@@ -106,8 +106,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     private static final float DEFAULT_ZOOM = 16;
-    private static final double DEFAULT_LATITUD = 3.4375964;
-    private static final double DEFAULT_LONGITUD = -76.5166973;
+    private static final double DEFAULT_LATITUD = 3.4670192;
+    private static final double DEFAULT_LONGITUD = -76.5244746;
     private Toolbar mToolbar;
 
     private double distanciaFiltro;
@@ -393,10 +393,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(cargarShared()){
             puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
             puntoUsuario.setVisible(true);
-        }else{
-           actualizarLocalizaciónActual();
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                     new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()),DEFAULT_ZOOM));
+        }else{
+           actualizarLocalizaciónActual();
         }
 
     }
@@ -568,6 +568,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         updateLocationUI();
         actualizarLocalizaciónActual();
+
     }
 
     private void updateLocationUI() {
@@ -667,6 +668,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
             }
         }
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
     }
 
     public void darUbicacionActual(View v) {
