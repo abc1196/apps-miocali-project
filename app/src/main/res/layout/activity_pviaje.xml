@@ -24,17 +24,5 @@
             android:textStyle="bold"
             android:textSize="18dp"
             android:layout_margin="8dp"/>
-        <Button android:id="@+id/btnParada"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="Detalles"
-            android:textAllCaps="false"
-            android:drawableTint="@android:color/white"
-            android:background="@color/colorAccent"
-            android:textColor="@android:color/white"
-            android:drawableLeft="@drawable/rsz_ic_paradas_slide"
-            android:layout_margin="6dp"
-            android:layout_alignParentRight="true"
-            android:onClick="mostrarParada"/>
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

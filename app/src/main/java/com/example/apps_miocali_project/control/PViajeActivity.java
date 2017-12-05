@@ -130,8 +130,6 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                   MapStyleOptions.loadRawResourceStyle(
                           this, R.raw.style_json));
         map = googleMap;
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(Double.parseDouble(y1),Double.parseDouble(x1)), DEFAULT_ZOOM));
        // requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
           map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
               @Override
@@ -170,12 +168,12 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                         .anchor(0.5f, 0.5f) // Anchors the marker on the center
                         .title(dest.getNombreDestino())
                         .snippet("Hora de salida: " + viaje.getHoraSalida())
-                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.placeholder64));
+                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.placeholder));
                 Marker marker = map.addMarker(marker_onclick);
                 marcadoresPlanearRuta.put(marker,dest);
             }else if(i == viaje.getDestinos().size()-1){
                 MarkerOptions marker_onclick = new MarkerOptions()
-                        .anchor(0.5f, 0.5f) // Anchors the marker on the center
+                        .anchor(0.5f, 0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)) // Anchors the marker on the center
                         .title(dest.getNombreDestino())
                         .snippet("Hora de llegada: " + viaje.getHoraLlegada())
                         .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino()));
@@ -231,6 +229,9 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
 
             }
         }
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(Double.parseDouble(y1),Double.parseDouble(x1)), DEFAULT_ZOOM));
+
     }
 
     public void mostrarParada(View v){
