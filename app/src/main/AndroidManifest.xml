@@ -38,6 +38,9 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/parada_widget_info"/>
         </receiver>
+        <service
+            android:name=".control.WidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

@@ -162,7 +162,6 @@ public class ParadaActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-
                                 LinearLayoutManager MyLayoutManager = new LinearLayoutManager(getActivity());
                                 MyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
                                 if (infoTiempos.size() > 0 & recyclerViewTime != null) {
@@ -175,10 +174,6 @@ public class ParadaActivity extends AppCompatActivity {
                                     txtError.setVisibility( View.VISIBLE);
                                     txtError.setText(getResources().getString(R.string.error_buses));
                                 }
-
-
-
-
                             }
                         });
                         Thread.sleep(10000);

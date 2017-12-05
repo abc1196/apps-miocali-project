@@ -3,6 +3,8 @@ package com.example.apps_miocali_project.control;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,6 +37,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +67,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import Modelo.Bus;
+import Modelo.Parada;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -359,11 +363,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
         }
     }
+    private int widgetId = 0;
 
     public void agregarAWidget(View view) {
 
     //TODO
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(ParadaWidget.NUEVA_PARADA, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(ParadaWidget.NUEVA_PARADA, idParada).commit();
+        editor.putString(ParadaWidget.NOMBRE_PARADA, nomParada).commit();
 
+        Log.d("WIDGETAG",idParada);
+        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), ParadaWidget.class));
+        ParadaWidget myWidget = new ParadaWidget();
+        myWidget.onUpdate(this, AppWidgetManager.getInstance(this),ids);
     }
 
     public void puntosParadas(View v) {
@@ -378,7 +391,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(PARADAS_ACTIVAS, paradas);
+        editor.putBoolean(PARADAS_ACTIVAS, paradas).commit();
 
     }
 
@@ -438,7 +451,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(RECARGAS_ACTIVAS, recargas);
+        editor.putBoolean(RECARGAS_ACTIVAS, recargas).commit();
 
 
     }
@@ -482,7 +495,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(WIFI_ACTIVAS, wifi);
+        editor.putBoolean(WIFI_ACTIVAS, wifi).commit();
 
     }
 
