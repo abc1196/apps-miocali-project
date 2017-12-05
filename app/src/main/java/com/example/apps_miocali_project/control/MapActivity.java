@@ -110,8 +110,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     private static final float DEFAULT_ZOOM = 16;
-    private static final double DEFAULT_LATITUD = 3.4670192;
-    private static final double DEFAULT_LONGITUD = -76.5244746;
+    private static final double DEFAULT_LATITUD = 3.4375964;
+    private static final double DEFAULT_LONGITUD = -76.5166973;
     private Toolbar mToolbar;
 
     private double distanciaFiltro;
@@ -134,7 +134,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         nomParada="";
         txtParadaNombre=(TextView)findViewById(R.id.txtParadaNombre);
         btnParada=(Button)findViewById(R.id.btnParada);
-        btnFav=(Button)findViewById(R.id.btnFav);
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         int filtro = sharedPref.getInt(DISTANCIA_FILTRO, 500);
         distanciaFiltro=(float)filtro;
@@ -199,6 +198,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     autocompleteFragment.setText("");
                     marcadoresPlanearRuta.clear();
                     LatLng p = place.getLatLng();
+                    marker = map.addMarker(new MarkerOptions().position(p).title(place.getName().toString()).snippet(place.getAddress().toString()));
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(p,16 ));
+                    marcadoresPlanearRuta.add(marker);
+                    txtDestinoNombre.setText(place.getName().toString());
                     txtDestinoDireccion.setText(place.getAddress().toString());
 
                 }
@@ -273,18 +276,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     if(btnParada.getVisibility()==View.GONE){
                         btnParada.setVisibility(View.VISIBLE);
                     }
-                    if(btnFav.getVisibility()==View.GONE){
-                        btnFav.setVisibility(View.VISIBLE);
-                    }
+
                     paradasLayout.setVisibility(View.VISIBLE);
                 } else if(mapRecargas.containsKey(marker)){
                     txtParadaNombre.setText(marker.getTitle());
                     if(btnParada.getVisibility()==View.VISIBLE){
                         btnParada.setVisibility(View.GONE);
                     }
-                    if(btnFav.getVisibility()==View.VISIBLE){
-                        btnFav.setVisibility(View.GONE);
-                    }
+
                     paradasLayout.setVisibility(View.VISIBLE);
                 }
                 return false;
@@ -311,7 +310,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
-        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+      map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
 
             @Override
             public void onMarkerDragStart(Marker marker) {
@@ -383,10 +382,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(cargarShared()){
             puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
             puntoUsuario.setVisible(true);
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()),DEFAULT_ZOOM));
         }else{
            actualizarLocalizaciónActual();
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()),DEFAULT_ZOOM));
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
@@ -419,7 +418,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void puntosParadas(View v) {
         if(permisoPosicion&&!paradas){
-            pintarPuntosParadas();
+        pintarPuntosParadas();
             fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
             paradas = true;
         }else{
@@ -578,7 +577,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         updateLocationUI();
         actualizarLocalizaciónActual();
-
     }
 
     private void updateLocationUI() {
@@ -678,8 +676,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
             }
         }
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
     }
 
     public void darUbicacionActual(View v) {
@@ -805,7 +801,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("TAGDISTANCIA","DISTANCIA: "+(float)distanciaFiltro);
         if(distanciaFiltro==100){seekbar1.setMinStartValue(0 ).apply();}else{
         seekbar1.setMinStartValue((float) distanciaFiltro ).apply();}
-     Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
+         Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {

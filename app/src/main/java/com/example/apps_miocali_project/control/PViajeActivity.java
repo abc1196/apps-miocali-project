@@ -139,9 +139,6 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                       destino=marcadoresPlanearRuta.get(marker);
                       nomParada=marker.getTitle();
                       txtParadaNombre.setText(destino.getNombreDestino()+": "+ destino.getIdentBus());
-                      if(btnParada.getVisibility()== View.GONE){
-                          btnParada.setVisibility(View.VISIBLE);
-                      }
                       paradasLayout.setVisibility(View.VISIBLE);
                   }
                   return false;
@@ -182,10 +179,10 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
             }else if(i>0 && i < viaje.getDestinos().size()){
                 if((i+1)<viaje.getDestinos().size()) {
                     if(!viaje.getDestinos().get(i).getIdentBus().equals(viaje.getDestinos().get(i+1).getIdentBus())) {
-
+                        Destino d2=viaje.getDestinos().get(i+1);
                         MarkerOptions marker_onclick = new MarkerOptions()
                                 .anchor(0.5f, 0.5f) // Anchors the marker on the center
-                                .title(dest.getNombreDestino()+": "+dest.getIdentBus())
+                                .title(dest.getNombreDestino()+": "+d2.getIdentBus())
                                 .snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
                                 .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_marker));
 
