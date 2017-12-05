@@ -105,9 +105,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     private static final float DEFAULT_ZOOM = 16;
-    private static final double DEFAULT_LATITUD = 3.4375964;
-    private static final double DEFAULT_LONGITUD = -76.5166973;
+    private static final double DEFAULT_LATITUD = 3.4670192;
+    private static final double DEFAULT_LONGITUD = -76.5244746;
     private Toolbar mToolbar;
+
 
     private double distanciaFiltro;
     private ConexionHTTPTReal darBusesTiempoReal;
@@ -163,6 +164,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         modoManual = false;
         marcadoresPlanearRuta= new ArrayList<Marker>();
+        permisoPosicion=true;
         AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(Place.TYPE_COUNTRY)
                 .setCountry("CO")
@@ -377,8 +379,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             puntoUsuario.setVisible(true);
         }else{
            actualizarLocalizaciónActual();
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()),DEFAULT_ZOOM));
         }
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
@@ -656,6 +656,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
             }
         }
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
+
     }
 
     public void darUbicacionActual(View v) {
@@ -892,7 +895,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                           Parada parada=    db.getMundo().getParada(buses.get(i).getStopId());
                         if(parada!=null) {
                             MarkerOptions marker_onclick = new MarkerOptions()
-                                    .anchor(0f, 0.5f) // Anchors the marker on the center parte inferior
+                                    .anchor(0.1f, 1f) // Anchors the marker on the center parte inferior
                                     .title(identRuta).snippet("Siguiente parada: " + parada.getNombre())
                                     .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
                             Marker marker = map.addMarker(marker_onclick);
@@ -900,7 +903,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             c++;
                         }else{
                             MarkerOptions marker_onclick = new MarkerOptions()
-                                    .anchor(0f, 0.5f) // Anchors the marker on the center parte inferior
+                                    .anchor(0.1f, 1f) // Anchors the marker on the center parte inferior
                                     .title(identRuta)
                                     .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
                             Marker marker = map.addMarker(marker_onclick);
@@ -931,7 +934,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     tr.execute();
                 }
             }
-        }else{
+        }else if(darBusesTiempoReal==null){
             Toast toast= Toast.makeText(getActivity(),"No se encontraron buses. Intenta más tarde.",Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();

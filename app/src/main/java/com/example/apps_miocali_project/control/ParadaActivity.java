@@ -206,6 +206,16 @@ public class ParadaActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(TIEMPO_BUSES, activarBuses).commit();
+        if(activarBuses){activarBuses=false;}
+        this.finish();
+        return;
+    }
+
 
     public Activity getActivity() {
         return this;
