@@ -484,6 +484,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_zone_marker)).title(nombre);
                     Marker marker = map.addMarker(marker_onclick);
                     mapRecargas.put(marker,nombre);
+                    Log.d("HOLA","HOLA");
                 }
             }
 
