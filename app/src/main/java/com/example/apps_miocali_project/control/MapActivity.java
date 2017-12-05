@@ -75,6 +75,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener  {
     private ProgressDialog pg;
 
+    public SharedPreferences sharedPref;
     android.support.design.widget.FloatingActionButton fabUbicacion;
     SupportMapFragment mapFragment;
     FloatingActionMenu fabMenu;
@@ -108,9 +109,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
-    private static final float DEFAULT_ZOOM = 13;
-    private static final double DEFAULT_LATITUD = 3.448972;
-    private static final double DEFAULT_LONGITUD = -76.556218;
+    private static final float DEFAULT_ZOOM = 16;
+    private static final double DEFAULT_LATITUD = 3.4375964;
+    private static final double DEFAULT_LONGITUD = -76.5166973;
     private Toolbar mToolbar;
 
     private double distanciaFiltro;
@@ -120,6 +121,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private String nomParada;
     private TextView txtParadaNombre, txtDestinoNombre, txtDestinoDireccion;
     private Button btnParada, btnFav;
+
+    private Marker puntoUsuario;
+    private boolean modoManual;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -163,6 +167,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         wifi=false;
         listWifi= new ArrayList<Marker>();
 
+        modoManual = false;
         marcadoresPlanearRuta= new ArrayList<Marker>();
         permisoPosicion = true;
         AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
@@ -225,49 +230,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
-        String longitud = sharedPref.getString(KEY_LOCATION_LONGITUD, "0");
-        if (latitud.equals("0")) {
-            Log.d("1", "No hay shared");
-        } else {
-            Log.d("1", "Hay Shared");
-            double sharedLatitud = Double.parseDouble(latitud);
-            double sharedLongitud = Double.parseDouble(longitud);
-            ultimaLocacion = new Location("");
-            ultimaLocacion.setLatitude(sharedLatitud);
-            ultimaLocacion.setLongitude(sharedLongitud);
-        }
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                ultimaLocacion = location;
-                Log.d("loc", "El loc mananager cambio a " + location.getLatitude() + " " + location.getLongitude());
-                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(KEY_LOCATION_LATITUD, "" + ultimaLocacion.getLatitude());
-                editor.putString(KEY_LOCATION_LONGITUD, "" + ultimaLocacion.getLongitude());
-                editor.commit();
-                Log.d("1", "Guardó en shared por movimiento");
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
 
     }
 
@@ -300,8 +263,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 MapStyleOptions.loadRawResourceStyle(
                         this, R.raw.style_json));
         map = googleMap;
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
+       // map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+               // new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -362,6 +325,84 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
         }
+        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                if(!modoManual) {
+                    Toast.makeText(getApplicationContext(), "Pasando a modo manual",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                ultimaLocacion.setLatitude(marker.getPosition().latitude);
+                ultimaLocacion.setLongitude(marker.getPosition().longitude);
+                guardarShared();
+                puntoUsuario.setPosition(marker.getPosition());
+                modoManual = true;
+                if(paradas){
+                    pintarPuntosParadas();
+                }
+                if(wifi){
+                    pintarPuntosWifi();
+                }
+                if(recargas){
+                    pintarPuntosRecarga();
+                }
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+            }
+
+        });
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if(!modoManual) {
+                   ultimaLocacion = location;
+                   puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                   puntoUsuario.setVisible(true);
+                    //Log.d("tag","posicion automatica cambio a "+ultimaLocacion.getLatitude() + ultimaLocacion.getLongitude());
+                    //guardarShared();
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        MarkerOptions puntoUsuarioOptions = new MarkerOptions()
+                .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                .position(new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD)).draggable(true);
+
+        puntoUsuario = map.addMarker(puntoUsuarioOptions);
+        puntoUsuario.setVisible(false);
+        if(cargarShared()){
+            puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+            puntoUsuario.setVisible(true);
+        }else{
+           actualizarLocalizaciónActual();
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()),DEFAULT_ZOOM));
+        }
+
     }
     private int widgetId = 0;
 
@@ -537,8 +578,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         }
-        updateLocationUI();
 
+        updateLocationUI();
+        actualizarLocalizaciónActual();
     }
 
     private void updateLocationUI() {
@@ -551,25 +593,36 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
                 if (ultimaLocacion != null) {
-                    map.setMyLocationEnabled(true);
-                    SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(KEY_LOCATION_LATITUD, "" + ultimaLocacion.getLatitude());
-                    editor.putString(KEY_LOCATION_LONGITUD, "" + ultimaLocacion.getLongitude());
-                    editor.commit();
+                    puntoUsuario.setVisible(true);
+                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                    guardarShared();
                     Log.d("1", "Guardó en shared por tomar ubicación");
                 } else {
-                    ultimaLocacion = new Location("");
-                    ultimaLocacion.setLatitude(DEFAULT_LATITUD);
-                    ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
+                    Criteria criteria = new Criteria();
+                    criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+                    String provider = locationManager.getBestProvider(criteria, false);
+                    ultimaLocacion = locationManager.getLastKnownLocation(provider);
+                    if(ultimaLocacion==null){
+                        if(cargarShared()){
+                            puntoUsuario.setVisible(true);
+                            puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                            Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                                    Toast.LENGTH_LONG).show();
+                        }else {
+                            ultimaLocacion = new Location("");
+                            ultimaLocacion.setLatitude(DEFAULT_LATITUD);
+                            ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
+                            puntoUsuario.setVisible(true);
+                            puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
+                            Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
                     ubicacionActivada =false;
-                    Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual.",
-                            Toast.LENGTH_LONG).show();
                 }
             } else {
                 map.setMyLocationEnabled(false);
                 map.getUiSettings().setMyLocationButtonEnabled(false);
-                ultimaLocacion = null;
                 Log.d("1", "Ultima locacion cambio a null");
             }
         } catch (SecurityException e) {
@@ -601,36 +654,72 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
             return;
         }
-        map.setMyLocationEnabled(true);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-        String provider = locationManager.getBestProvider(criteria, false);
-        ultimaLocacion = locationManager.getLastKnownLocation(provider);
-        if(ultimaLocacion==null){
-            ultimaLocacion = new Location("");
-            ultimaLocacion.setLatitude(DEFAULT_LATITUD);
-            ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
+        if(permisoPosicion) {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            String provider = locationManager.getBestProvider(criteria, false);
+            ultimaLocacion = locationManager.getLastKnownLocation(provider);
+            if (ultimaLocacion == null) {
+                if (cargarShared()) {
+                    puntoUsuario.setVisible(true);
+                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
+                    Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    ultimaLocacion = new Location("");
+                    ultimaLocacion.setLatitude(DEFAULT_LATITUD);
+                    ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
+                    puntoUsuario.setVisible(true);
+                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
+                    Toast.makeText(getApplicationContext(), "Por favor enciende ubicación actual",
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Log.d("tag", "lastLocation no es null");
+                puntoUsuario.setVisible(true);
+                puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
+            }
         }
     }
 
     public void darUbicacionActual(View v) {
-        if(ultimaLocacion==null){
+        if(modoManual){
+            Toast.makeText(getApplicationContext(), "Pasando a modo automático",
+                    Toast.LENGTH_LONG).show();
+        }
+        modoManual = false;
+        actualizarLocalizaciónActual();
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+        new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
+    }
+    public boolean cargarShared(){
+        boolean loaded = false;
+        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String latitud = sharedPref.getString(KEY_LOCATION_LATITUD, "0");
+        String longitud = sharedPref.getString(KEY_LOCATION_LONGITUD, "0");
+        if (latitud.equals("0")) {
+            Log.d("tag","no habia shared");
+            loaded = false;
             ultimaLocacion = new Location("");
             ultimaLocacion.setLatitude(DEFAULT_LATITUD);
             ultimaLocacion.setLongitude(DEFAULT_LONGITUD);
-            Toast.makeText(getApplicationContext(), "Por favor acepta los permisos de ubicación",
-                    Toast.LENGTH_LONG).show();
-            actualizarLocalizaciónActual();
-        }else {
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
-            updateLocationUI();
-            if(ultimaLocacion.getLatitude()==DEFAULT_LATITUD && ultimaLocacion.getLongitude()==DEFAULT_LONGITUD){
-                Toast.makeText(getApplicationContext(), "Por favor enciende tu ubicación",
-                        Toast.LENGTH_LONG).show();
-                actualizarLocalizaciónActual();
-            }
+        } else {
+            loaded=true;
+            double sharedLatitud = Double.parseDouble(latitud);
+            double sharedLongitud = Double.parseDouble(longitud);
+            ultimaLocacion = new Location("");
+            ultimaLocacion.setLatitude(sharedLatitud);
+            ultimaLocacion.setLongitude(sharedLongitud);
         }
+        return loaded;
+    }
+
+    public void guardarShared(){
+        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(KEY_LOCATION_LATITUD, "" + ultimaLocacion.getLatitude());
+        editor.putString(KEY_LOCATION_LONGITUD, "" + ultimaLocacion.getLongitude());
+        editor.commit();
     }
 
     public void activarMenuBuses(View v){
