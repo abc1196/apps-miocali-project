@@ -1,4 +1,4 @@
-package Modelo;
+package com.example.apps_miocali_project.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

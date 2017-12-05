@@ -1,4 +1,4 @@
-package Modelo;
+package com.example.apps_miocali_project.model;
 
 /**
  * Created by alejo on 30/11/2017.

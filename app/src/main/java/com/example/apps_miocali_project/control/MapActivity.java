@@ -3,14 +3,11 @@ package com.example.apps_miocali_project.control;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
@@ -19,7 +16,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -37,7 +33,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,8 +61,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import Modelo.Bus;
-import Modelo.Parada;
+import com.example.apps_miocali_project.model.Bus;
+import com.example.apps_miocali_project.model.Parada;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -168,7 +163,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         modoManual = false;
         marcadoresPlanearRuta= new ArrayList<Marker>();
-        permisoPosicion = true;
         AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(Place.TYPE_COUNTRY)
                 .setCountry("CO")
@@ -262,9 +256,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 MapStyleOptions.loadRawResourceStyle(
                         this, R.raw.style_json));
         map = googleMap;
-       // map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-               // new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
-       requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -328,12 +320,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 puntoUsuario.setPosition(marker.getPosition());
                 modoManual = true;
                 if(paradas){
+                    borrarPuntosParada();
                     pintarPuntosParadas();
                 }
                 if(wifi){
+                    borrarPuntosWifi();
                     pintarPuntosWifi();
                 }
                 if(recargas){
+                    borrarPuntosRecarga();
                     pintarPuntosRecarga();
                 }
             }
@@ -352,8 +347,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                    ultimaLocacion = location;
                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
                    puntoUsuario.setVisible(true);
-                    //Log.d("tag","posicion automatica cambio a "+ultimaLocacion.getLatitude() + ultimaLocacion.getLongitude());
-                    //guardarShared();
                 }
             }
 
@@ -400,21 +393,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     }
-    private int widgetId = 0;
 
-    public void agregarAWidget(View view) {
-
-    //TODO
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(ParadaWidget.NUEVA_PARADA, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(ParadaWidget.NUEVA_PARADA, idParada).commit();
-        editor.putString(ParadaWidget.NOMBRE_PARADA, nomParada).commit();
-
-        Log.d("WIDGETAG",idParada);
-        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), ParadaWidget.class));
-        ParadaWidget myWidget = new ParadaWidget();
-        myWidget.onUpdate(this, AppWidgetManager.getInstance(this),ids);
-    }
 
     public void puntosParadas(View v) {
         if(permisoPosicion&&!paradas){
@@ -671,8 +650,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             Toast.LENGTH_LONG).show();
                 }
             } else {
-                Log.d("tag", "lastLocation no es null");
-                puntoUsuario.setVisible(true);
+               puntoUsuario.setVisible(true);
+                guardarShared();
                 puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
             }
         }
@@ -908,9 +887,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             int c=0;
             for(int i=0; i<buses.size(); i++) {
                 if (buses.get(i).getRouteId().equals(ruta)) {
-                    Log.d("buses", buses.get(i).getLatitud()+"");
-                    Log.d("buses", buses.get(i).getLongitud()+"");
-                      if (inRange(buses.get(i).getLatitud(), buses.get(i).getLongitud(), distanciaRutas)) {
+                        if (inRange(buses.get(i).getLatitud(), buses.get(i).getLongitud(), distanciaRutas)) {
                           Parada parada=    db.getMundo().getParada(buses.get(i).getStopId());
                         if(parada!=null) {
                             MarkerOptions marker_onclick = new MarkerOptions()
@@ -929,7 +906,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             busesTiempoReal.add(marker);
                             c++;
                         }
-                    }
+                   }
                 }
 
             }

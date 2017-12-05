@@ -1,18 +1,12 @@
 package com.example.apps_miocali_project.control;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,7 +19,6 @@ import android.widget.TextView;
 import com.example.apps_miocali_project.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -45,10 +38,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import Modelo.Destino;
-import Modelo.Viaje;
-
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import com.example.apps_miocali_project.model.Destino;
+import com.example.apps_miocali_project.model.Viaje;
 
 /**
  * Created by Juan K on 29/11/2017.
