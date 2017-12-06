@@ -311,16 +311,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
-        boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
-        boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
-        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
-        if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
-        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        }
         map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
 
             @Override
@@ -339,12 +329,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 puntoUsuario.setPosition(marker.getPosition());
                 modoManual = true;
                 if(paradas){
+                    borrarPuntosParada();
                     pintarPuntosParadas();
                 }
                 if(wifi){
                     pintarPuntosWifi();
                 }
                 if(recargas){
+                    borrarPuntosRecarga();
                     pintarPuntosRecarga();
                 }
             }
@@ -387,7 +379,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         MarkerOptions puntoUsuarioOptions = new MarkerOptions()
                 .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                 .position(new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD)).draggable(true);
-
         puntoUsuario = map.addMarker(puntoUsuarioOptions);
         puntoUsuario.setVisible(false);
         if(cargarShared()){
@@ -663,7 +654,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             Toast.LENGTH_LONG).show();
                 }
             } else {
-                Log.d("tag", "lastLocation no es null");
                 puntoUsuario.setVisible(true);
                 puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
             }
