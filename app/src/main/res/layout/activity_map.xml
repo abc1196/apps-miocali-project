@@ -129,7 +129,7 @@
             android:layout_height="wrap_content"
             android:gravity="bottom"
             android:background="@android:color/white"
-            android:visibility="visible">
+            android:visibility="gone">
             <TextView android:id="@+id/txtParadaNombre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
                 android:layout_marginLeft="16dp"/>
             <Button android:id="@+id/btnParada"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="wrap_content"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:text="Detalles"
                 android:textColor="@color/colorAccent"
@@ -163,7 +163,7 @@
 
         <TextView
             android:id="@+id/txtDestinoNombre"
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:layout_marginLeft="16dp"
@@ -172,7 +172,7 @@
 
         <TextView
             android:id="@+id/txtDestinoDireccion"
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/txtDestinoNombre"
             android:layout_marginTop="4dp"

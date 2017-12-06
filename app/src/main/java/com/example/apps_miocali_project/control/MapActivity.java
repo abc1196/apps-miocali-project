@@ -349,6 +349,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
                    puntoUsuario.setVisible(true);
                 }
+                if(paradas){
+                    borrarPuntosParada();
+                    pintarPuntosParadas();
+                }
+                if(wifi){
+                    borrarPuntosWifi();
+                    pintarPuntosWifi();
+                }
+                if(recargas){
+                    borrarPuntosRecarga();
+                    pintarPuntosRecarga();
+                }
             }
 
             @Override
@@ -669,6 +681,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         actualizarLocalizaciónActual();
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
         new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
+        if(paradas){
+            borrarPuntosParada();
+            pintarPuntosParadas();
+        }
+        if(wifi){
+            borrarPuntosWifi();
+            pintarPuntosWifi();
+        }
+        if(recargas){
+            borrarPuntosRecarga();
+            pintarPuntosRecarga();
+        }
     }
     public boolean cargarShared(){
         boolean loaded = false;
