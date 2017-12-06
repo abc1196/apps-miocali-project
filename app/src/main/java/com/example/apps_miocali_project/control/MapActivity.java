@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
@@ -17,7 +16,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -63,7 +61,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import Modelo.Bus;
+import com.example.apps_miocali_project.model.Bus;
+import com.example.apps_miocali_project.model.Parada;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -110,6 +109,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final double DEFAULT_LONGITUD = -76.5244746;
     private Toolbar mToolbar;
 
+
     private double distanciaFiltro;
     private ConexionHTTPTReal darBusesTiempoReal;
     private RelativeLayout paradasLayout, destinoLayout;
@@ -130,11 +130,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         nomParada="";
         txtParadaNombre=(TextView)findViewById(R.id.txtParadaNombre);
         btnParada=(Button)findViewById(R.id.btnParada);
-        btnFav=(Button)findViewById(R.id.btnFav);
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         int filtro = sharedPref.getInt(DISTANCIA_FILTRO, 500);
         distanciaFiltro=(float)filtro;
-        int rutas = sharedPref.getInt(DISTANCIA_RUTAS, 2000);
+        int rutas = sharedPref.getInt(DISTANCIA_RUTAS, 3000);
         distanciaRutas=(float)rutas;
         busesTiempoReal = new ArrayList<>();
         db= new DataBase(this);
@@ -165,7 +164,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         modoManual = false;
         marcadoresPlanearRuta= new ArrayList<Marker>();
-        permisoPosicion = true;
+        permisoPosicion=true;
         AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(Place.TYPE_COUNTRY)
                 .setCountry("CO")
@@ -180,7 +179,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 // TODO: Get info about the selected place.
                 if(marcadoresPlanearRuta.isEmpty()) {
                     LatLng p = place.getLatLng();
-                    Marker marker = map.addMarker(new MarkerOptions().position(p).title(place.getName().toString()).snippet(place.getAddress().toString()));
+                    Marker marker = map.addMarker(new MarkerOptions().position(p).title(place.getName().toString()).snippet(place.getAddress().toString()).icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)));
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(p,16 ));
                     marcadoresPlanearRuta.add(marker);
                     txtDestinoNombre.setText(place.getName().toString());
@@ -259,9 +258,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 MapStyleOptions.loadRawResourceStyle(
                         this, R.raw.style_json));
         map = googleMap;
-       // map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-               // new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD), DEFAULT_ZOOM));
-       requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
+        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -273,18 +270,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     if(btnParada.getVisibility()==View.GONE){
                         btnParada.setVisibility(View.VISIBLE);
                     }
-                    if(btnFav.getVisibility()==View.GONE){
-                        btnFav.setVisibility(View.VISIBLE);
-                    }
+
                     paradasLayout.setVisibility(View.VISIBLE);
                 } else if(mapRecargas.containsKey(marker)){
                     txtParadaNombre.setText(marker.getTitle());
                     if(btnParada.getVisibility()==View.VISIBLE){
                         btnParada.setVisibility(View.GONE);
                     }
-                    if(btnFav.getVisibility()==View.VISIBLE){
-                        btnFav.setVisibility(View.GONE);
-                    }
+
                     paradasLayout.setVisibility(View.VISIBLE);
                 }
                 return false;
@@ -311,7 +304,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
-        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+      map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
 
             @Override
             public void onMarkerDragStart(Marker marker) {
@@ -333,6 +326,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     pintarPuntosParadas();
                 }
                 if(wifi){
+                    borrarPuntosWifi();
                     pintarPuntosWifi();
                 }
                 if(recargas){
@@ -355,8 +349,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                    ultimaLocacion = location;
                    puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
                    puntoUsuario.setVisible(true);
-                    //Log.d("tag","posicion automatica cambio a "+ultimaLocacion.getLatitude() + ultimaLocacion.getLongitude());
-                    //guardarShared();
                 }
             }
 
@@ -378,25 +370,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         MarkerOptions puntoUsuarioOptions = new MarkerOptions()
                 .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                .position(new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD)).draggable(true);
+                .position(new LatLng(DEFAULT_LATITUD, DEFAULT_LONGITUD)).draggable(true).icon(BitmapDescriptorFactory.fromResource(R.drawable.placeholder));
+
         puntoUsuario = map.addMarker(puntoUsuarioOptions);
         puntoUsuario.setVisible(false);
         if(cargarShared()){
             puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()));
             puntoUsuario.setVisible(true);
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(ultimaLocacion.getLatitude(),ultimaLocacion.getLongitude()),DEFAULT_ZOOM));
         }else{
            actualizarLocalizaciónActual();
         }
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
+        boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
+        boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
+        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        }
+
 
     }
 
-    public void agregarAWidget(View view) {
-
-    //TODO
-
-    }
 
     public void puntosParadas(View v) {
         if(permisoPosicion&&!paradas){
@@ -487,6 +484,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.shopping_zone_marker)).title(nombre);
                     Marker marker = map.addMarker(marker_onclick);
                     mapRecargas.put(marker,nombre);
+                    Log.d("HOLA","HOLA");
                 }
             }
 
@@ -559,7 +557,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         updateLocationUI();
         actualizarLocalizaciónActual();
-
     }
 
     private void updateLocationUI() {
@@ -654,12 +651,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             Toast.LENGTH_LONG).show();
                 }
             } else {
-                puntoUsuario.setVisible(true);
+               puntoUsuario.setVisible(true);
+                guardarShared();
                 puntoUsuario.setPosition(new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()));
             }
         }
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(ultimaLocacion.getLatitude(), ultimaLocacion.getLongitude()), 16));
+
     }
 
     public void darUbicacionActual(View v) {
@@ -785,7 +784,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("TAGDISTANCIA","DISTANCIA: "+(float)distanciaFiltro);
         if(distanciaFiltro==100){seekbar1.setMinStartValue(0 ).apply();}else{
         seekbar1.setMinStartValue((float) distanciaFiltro ).apply();}
-     Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
+         Log.d("TAGDISTANCIA: ", "SEEKBAR: "+  seekbar1.getMinStartValue());
         seekbar1.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
@@ -892,17 +891,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             int c=0;
             for(int i=0; i<buses.size(); i++) {
                 if (buses.get(i).getRouteId().equals(ruta)) {
-                    Log.d("buses", buses.get(i).getLatitud()+"");
-                    Log.d("buses", buses.get(i).getLongitud()+"");
-                      if (inRange(buses.get(i).getLatitud(), buses.get(i).getLongitud(), distanciaRutas)) {
-                        MarkerOptions marker_onclick = new MarkerOptions()
-                                .anchor(0f, 0.5f) // Anchors the marker on the center parte inferior
-                                .title(identRuta)
-                                .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
-                        Marker marker = map.addMarker(marker_onclick);
-                        busesTiempoReal.add(marker);
-                        c++;
-                    }
+                        if (inRange(buses.get(i).getLatitud(), buses.get(i).getLongitud(), distanciaRutas)) {
+                          Parada parada=    db.getMundo().getParada(buses.get(i).getStopId());
+                        if(parada!=null) {
+                            MarkerOptions marker_onclick = new MarkerOptions()
+                                    .anchor(0.1f, 1f) // Anchors the marker on the center parte inferior
+                                    .title(identRuta).snippet("Siguiente parada: " + parada.getNombre())
+                                    .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+                            Marker marker = map.addMarker(marker_onclick);
+                            busesTiempoReal.add(marker);
+                            c++;
+                        }else{
+                            MarkerOptions marker_onclick = new MarkerOptions()
+                                    .anchor(0.1f, 1f) // Anchors the marker on the center parte inferior
+                                    .title(identRuta)
+                                    .position(new LatLng(buses.get(i).getLatitud(), buses.get(i).getLongitud())).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+                            Marker marker = map.addMarker(marker_onclick);
+                            busesTiempoReal.add(marker);
+                            c++;
+                        }
+                   }
                 }
 
             }
@@ -926,7 +934,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     tr.execute();
                 }
             }
-        }else{
+        }else if(darBusesTiempoReal==null){
             Toast toast= Toast.makeText(getActivity(),"No se encontraron buses. Intenta más tarde.",Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();

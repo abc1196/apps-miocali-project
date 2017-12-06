@@ -1,4 +1,4 @@
-package Modelo;
+package com.example.apps_miocali_project.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,6 +32,19 @@ public class SistemaMio implements Serializable {
 
     public void setParadasDelSistema(ArrayList<Parada> paradasDelSistema) {
         this.paradasDelSistema = paradasDelSistema;
+    }
+
+    public Parada getParada(String idparada){
+        Parada parada=null;
+        boolean termino=false;
+        for(int i=0; i < paradasDelSistema.size()&&!termino;i++){
+            Parada p=paradasDelSistema.get(i);
+            if(p.getId().equals(idparada)){
+                parada=p;
+                termino=true;
+            }
+        }
+        return parada;
     }
 
     public void setRutas(ArrayList<Ruta> rutas) {

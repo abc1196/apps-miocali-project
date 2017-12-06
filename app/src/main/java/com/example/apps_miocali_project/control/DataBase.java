@@ -26,12 +26,12 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import Modelo.Destino;
-import Modelo.Parada;
-import Modelo.PuntoMapa;
-import Modelo.Ruta;
-import Modelo.SistemaMio;
-import Modelo.Viaje;
+import com.example.apps_miocali_project.model.Destino;
+import com.example.apps_miocali_project.model.Parada;
+import com.example.apps_miocali_project.model.PuntoMapa;
+import com.example.apps_miocali_project.model.Ruta;
+import com.example.apps_miocali_project.model.SistemaMio;
+import com.example.apps_miocali_project.model.Viaje;
 
 
 public class DataBase extends SQLiteOpenHelper implements Serializable {

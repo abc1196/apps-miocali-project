@@ -1,18 +1,12 @@
 package com.example.apps_miocali_project.control;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,7 +19,6 @@ import android.widget.TextView;
 import com.example.apps_miocali_project.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -45,10 +38,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import Modelo.Destino;
-import Modelo.Viaje;
-
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import com.example.apps_miocali_project.model.Destino;
+import com.example.apps_miocali_project.model.Viaje;
 
 /**
  * Created by Juan K on 29/11/2017.
@@ -130,8 +121,6 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                   MapStyleOptions.loadRawResourceStyle(
                           this, R.raw.style_json));
         map = googleMap;
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(Double.parseDouble(y1),Double.parseDouble(x1)), DEFAULT_ZOOM));
        // requestPermissions(new String[]{ACCESS_FINE_LOCATION}, 1);
           map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
               @Override
@@ -141,9 +130,6 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                       destino=marcadoresPlanearRuta.get(marker);
                       nomParada=marker.getTitle();
                       txtParadaNombre.setText(destino.getNombreDestino()+": "+ destino.getIdentBus());
-                      if(btnParada.getVisibility()== View.GONE){
-                          btnParada.setVisibility(View.VISIBLE);
-                      }
                       paradasLayout.setVisibility(View.VISIBLE);
                   }
                   return false;
@@ -170,12 +156,12 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
                         .anchor(0.5f, 0.5f) // Anchors the marker on the center
                         .title(dest.getNombreDestino())
                         .snippet("Hora de salida: " + viaje.getHoraSalida())
-                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.placeholder64));
+                        .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.placeholder));
                 Marker marker = map.addMarker(marker_onclick);
                 marcadoresPlanearRuta.put(marker,dest);
             }else if(i == viaje.getDestinos().size()-1){
                 MarkerOptions marker_onclick = new MarkerOptions()
-                        .anchor(0.5f, 0.5f) // Anchors the marker on the center
+                        .anchor(0.5f, 0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)) // Anchors the marker on the center
                         .title(dest.getNombreDestino())
                         .snippet("Hora de llegada: " + viaje.getHoraLlegada())
                         .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino()));
@@ -184,10 +170,10 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
             }else if(i>0 && i < viaje.getDestinos().size()){
                 if((i+1)<viaje.getDestinos().size()) {
                     if(!viaje.getDestinos().get(i).getIdentBus().equals(viaje.getDestinos().get(i+1).getIdentBus())) {
-
+                        Destino d2=viaje.getDestinos().get(i+1);
                         MarkerOptions marker_onclick = new MarkerOptions()
                                 .anchor(0.5f, 0.5f) // Anchors the marker on the center
-                                .title(dest.getNombreDestino()+": "+dest.getIdentBus())
+                                .title(dest.getNombreDestino()+": "+d2.getIdentBus())
                                 .snippet("Hora de llegada: " + viaje.getDestinos().get(i).getTiempoLlegada() + " Hora de salida: " +viaje.getDestinos().get(i+1).getTiempoSalida())
                                 .position(new LatLng(dest.getLatitudDestino(), dest.getLongitudDestino())).icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_marker));
 
@@ -231,6 +217,9 @@ public class PViajeActivity extends AppCompatActivity implements OnMapReadyCallb
 
             }
         }
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(Double.parseDouble(y1),Double.parseDouble(x1)), DEFAULT_ZOOM));
+
     }
 
     public void mostrarParada(View v){

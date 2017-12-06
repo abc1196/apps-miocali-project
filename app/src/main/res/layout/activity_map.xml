@@ -143,25 +143,10 @@
                 android:background="@color/colorAccent"
                 android:textColor="@android:color/white"
                 android:drawableLeft="@drawable/rsz_ic_paradas_slide"
-                android:layout_margin="3dp"
+                android:layout_margin="8dp"
                 android:layout_alignParentRight="true"
                 android:onClick="mostrarParada"/>
-            <Button android:id="@+id/btnFav"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_below="@+id/btnParada"
-                android:layout_margin="3dp"
-                android:layout_alignParentRight="true"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="Favorita"
-                android:background="@color/colorAccent"
-                android:textAllCaps="false"
-                android:drawableLeft="@drawable/ic_favorite_border_black_24dp"
-                android:textColor="@android:color/white"
-                android:drawableTint="@android:color/white"
-                android:onClick="agregarAWidget"
-                />
+
         </RelativeLayout>
 
 
@@ -182,7 +167,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:layout_marginLeft="6dp"
-
             android:textSize="14dp"
             android:textStyle="bold" />
 

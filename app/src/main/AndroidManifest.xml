@@ -29,15 +29,7 @@
         </activity>
         <activity android:name=".control.PViajeActivity" />
         <activity android:name=".control.MapActivity" />
-        <receiver android:name=".control.ParadaWidget">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-            </intent-filter>
 
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/parada_widget_info"/>
-        </receiver>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -52,15 +44,6 @@
 
         <activity android:name=".control.ParadaActivity" />
 
-        <receiver android:name=".control.ParadaWidget">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/parada_widget_info" />
-        </receiver>
     </application>
 
 </manifest>
