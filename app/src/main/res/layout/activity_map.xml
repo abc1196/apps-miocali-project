@@ -47,13 +47,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
                 fab:menu_icon="@drawable/menu"
                 fab:menu_fab_size="normal"
-                fab:menu_colorNormal="@color/colorAccent"
-                fab:menu_colorPressed="@color/colorAccent"
+                fab:menu_colorNormal="@color/colorPrimary"
+                fab:menu_colorPressed="@color/colorPrimaryDark"
                 >
 
 
@@ -74,8 +74,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:fab_colorNormal="@color/colorDisabled"
-                    fab:fab_colorPressed="@color/colorAccent"
-                    fab:fab_colorRipple="@color/colorAccent"
+                    fab:fab_colorPressed="@color/colorRed"
+                    fab:fab_colorRipple="@color/colorRed"
                     fab:fab_size="mini"
                     app:fab_label="@string/paradas"
                     android:src="@drawable/rsz_ic_paradas_menu"
@@ -99,8 +99,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:fab_colorNormal="@color/colorDisabled"
-                    fab:fab_colorPressed="@color/colorAccent"
-                    fab:fab_colorRipple="@color/colorAccent"
+                    fab:fab_colorPressed="@color/colorPrimaryLight"
+                    fab:fab_colorRipple="@color/colorPrimaryLight"
                     fab:fab_size="mini"
                     app:fab_label="@string/wifi"
                     android:src="@drawable/rsz_ic_wifi_menu"
@@ -108,13 +108,15 @@
 
             </com.github.clans.fab.FloatingActionMenu>
 
-            <android.support.design.widget.FloatingActionButton
+            <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fabUbicacion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:src="@drawable/ic_gps_fixed_black_24dp"
-                android:tint="@android:color/white"
+                android:src="@drawable/rsz_ic_gps"
+                app:fab_colorNormal="@color/colorPrimary"
+                fab:fab_colorPressed="@color/colorPrimary"
+                fab:fab_colorRipple="@color/colorPrimaryDark"
                 android:onClick="darUbicacionActual"
                 android:layout_margin="16dp"/>
 
@@ -127,24 +129,22 @@
             android:layout_height="wrap_content"
             android:gravity="bottom"
             android:background="@android:color/white"
-            android:visibility="gone">
+            android:visibility="visible">
             <TextView android:id="@+id/txtParadaNombre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:textSize="18dp"
-                android:layout_margin="16dp"/>
+                android:textSize="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="16dp"/>
             <Button android:id="@+id/btnParada"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:text="Detalles"
-                android:textAllCaps="false"
-                android:drawableTint="@android:color/white"
-                android:background="@color/colorAccent"
-                android:textColor="@android:color/white"
-                android:drawableLeft="@drawable/rsz_ic_paradas_slide"
+                android:textColor="@color/colorAccent"
                 android:layout_margin="8dp"
-                android:layout_alignParentRight="true"
+                android:layout_below="@id/txtParadaNombre"
                 android:onClick="mostrarParada"/>
 
         </RelativeLayout>
@@ -156,7 +156,7 @@
     <RelativeLayout
         android:id="@+id/destinoLayout"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@android:color/white"
         android:visibility="gone">
@@ -166,7 +166,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:layout_marginLeft="6dp"
+            android:layout_marginLeft="16dp"
             android:textSize="14dp"
             android:textStyle="bold" />
 
@@ -176,20 +176,18 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/txtDestinoNombre"
             android:layout_marginTop="4dp"
-            android:layout_marginLeft="6dp"
+            android:layout_marginLeft="16dp"
             />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="16dp"
-            android:background="@color/colorAccent"
-            android:drawableTint="@android:color/white"
+            android:layout_below="@id/txtDestinoDireccion"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_marginLeft="16dp"
             android:onClick="planearViaje"
-            android:text="Ir"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white" />
+            android:text="INDICACIONES"
+            android:textColor="@color/colorAccent" />
     </RelativeLayout>
 
 

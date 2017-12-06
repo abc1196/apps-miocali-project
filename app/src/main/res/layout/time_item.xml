@@ -12,7 +12,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/txtBus"
@@ -21,7 +21,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:textStyle="bold"
-            android:textSize="24dp"
+            android:textSize="16dp"
             android:textAlignment="center"
             android:gravity="center"
             android:text=""
@@ -29,14 +29,14 @@
         <TextView android:id="@+id/txtProximo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18dp"
+            android:textSize="16dp"
             android:layout_alignRight="@+id/txtBus"
             android:layout_centerInParent="true"
             android:textStyle="italic"/>
         <TextView android:id="@+id/txtTime"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:textSize="22dp"
+            android:textSize="16dp"
             android:textAlignment="center"
             android:gravity="center"
             android:layout_alignParentRight="true"

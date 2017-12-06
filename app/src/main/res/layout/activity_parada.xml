@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:src="@drawable/logo"
-                android:layout_margin="8dp"/>
+                android:layout_margin="16dp"/>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
@@ -41,7 +41,7 @@
             android:layout_margin="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="32dp"
+            android:textSize="20dp"
             android:layout_alignParentLeft="true"
             tools:layout_editor_absoluteY="0dp"
             tools:layout_editor_absoluteX="0dp" />
@@ -57,12 +57,13 @@
                 android:layout_height="wrap_content"
                 android:text="@string/rutas_parada"
                 android:textSize="16dp"
-                android:layout_margin="8dp"/>
+                android:layout_margin="16dp"/>
             <android.support.v7.widget.RecyclerView
                 android:layout_below="@+id/txtInfo"
                 android:id="@+id/cardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"/>
 
         </RelativeLayout>
     </RelativeLayout>
@@ -74,7 +75,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/layoutInfo"
         android:background="@android:color/white"
-        android:layout_margin="8dp">
+        android:layout_margin="16dp">
         <TextView android:id="@+id/txtInfoDos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

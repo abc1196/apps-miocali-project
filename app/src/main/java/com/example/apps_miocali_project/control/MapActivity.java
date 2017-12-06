@@ -71,10 +71,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ProgressDialog pg;
 
     public SharedPreferences sharedPref;
-    android.support.design.widget.FloatingActionButton fabUbicacion;
     SupportMapFragment mapFragment;
     FloatingActionMenu fabMenu;
-    FloatingActionButton fabParadas, fabRecargas, fabWifi, accion_buses;
+    FloatingActionButton fabParadas, fabRecargas, fabWifi, accion_buses, fabUbicacion;
     boolean paradas, recargas, wifi;
     private DataBase db;
     private GoogleMap map;
@@ -150,7 +149,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         txtDestinoNombre=(TextView)findViewById(R.id.txtDestinoNombre);
         txtDestinoDireccion=(TextView)findViewById(R.id.txtDestinoDireccion);
         paradasLayout=(RelativeLayout)findViewById(R.id.paradaLayout);
-        fabUbicacion=(android.support.design.widget.FloatingActionButton)findViewById(R.id.fabUbicacion);
+        fabUbicacion=(FloatingActionButton)findViewById(R.id.fabUbicacion);
         accion_buses=(FloatingActionButton)findViewById(R.id.accion_buses);
         fabParadas=(FloatingActionButton) findViewById(R.id.accion_paradas);
         paradas=false;
@@ -384,11 +383,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         boolean p=sharedPref.getBoolean(PARADAS_ACTIVAS,false);
         boolean r=sharedPref.getBoolean(RECARGAS_ACTIVAS,false);
         boolean w=sharedPref.getBoolean(WIFI_ACTIVAS,false);
-        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        if(p){pintarPuntosParadas();paradas=p;  fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorRed), PorterDuff.Mode.MULTIPLY);
         }
         if(r){pintarPuntosRecarga();recargas=r;  fabRecargas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
         }
-        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        if(w){pintarPuntosWifi();wifi=w;  fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorPrimaryLight), PorterDuff.Mode.MULTIPLY);
         }
 
 
@@ -398,7 +397,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void puntosParadas(View v) {
         if(permisoPosicion&&!paradas){
         pintarPuntosParadas();
-            fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+            fabParadas.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorRed), PorterDuff.Mode.MULTIPLY);
             paradas = true;
         }else{
             borrarPuntosParada();
@@ -431,13 +430,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     if (db.getMundo().getParadasDelSistema().get(i).getId().startsWith("1")) {
                         MarkerOptions marker_onclick = new MarkerOptions()
                                 .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                                .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.station_marker));
+                                .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.estacion_map));
                         Marker marker = map.addMarker(marker_onclick);
                         mapParadas.put(marker, id);
                     } else {
                         MarkerOptions marker_onclick = new MarkerOptions()
                                 .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                                .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_marker));
+                                .position(new LatLng(lat, lng)).title(nombre).icon(BitmapDescriptorFactory.fromResource(R.drawable.parada_map));
                         Marker marker = map.addMarker(marker_onclick);
                         mapParadas.put(marker, id);
                     }
@@ -503,7 +502,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void puntosWifi(View v) {
         if(permisoPosicion&&!wifi) {
             pintarPuntosWifi();
-            fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+            fabWifi.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorPrimaryLight), PorterDuff.Mode.MULTIPLY);
             wifi = true;
         }else{
             borrarPuntosWifi();
@@ -523,7 +522,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lng = db.getMundo().getEstacionesWifi().get(i).getLongitud();
                     MarkerOptions marker_onclick = new MarkerOptions()
                             .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.wifi_zone_marker));
+                            .position(new LatLng(lat, lng)).icon(BitmapDescriptorFactory.fromResource(R.drawable.wifi_map));
                     Marker marker = map.addMarker(marker_onclick);
                     listWifi.add(marker);
 

@@ -8,6 +8,7 @@
     <color name="colorDisabled">#9E9E9E</color>
     <color name="colorRed">#e40716</color>
     <color name="black_alpha_40">#66000000</color>
+    <color name="colorPrimaryLight">#6BB9F0</color>
 
     9E9E9E
 </resources>
